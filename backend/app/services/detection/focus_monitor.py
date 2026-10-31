@@ -69,25 +69,20 @@ _BEHAVIOR_TO_STUDY_STATE: Dict[BehaviorLabel, StudyState] = {
 }
 
 
-# Canonical face mesh drawing indices matching reference overlay
-_FACE_OVAL_IDX = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10]
-_LIPS_OUTER_IDX = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61]
-_LIPS_INNER_IDX = [78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308, 415, 310, 311, 312, 13, 82, 81, 80, 191, 78]
-_LEFT_EYE_IDX = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246, 33]
-_LEFT_EYEBROW_IDX = [70, 63, 105, 66, 107, 55, 65, 52, 53, 46]
-_RIGHT_EYE_IDX = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398, 362]
-_RIGHT_EYEBROW_IDX = [300, 293, 334, 296, 336, 285, 295, 282, 283, 276]
-_LEFT_IRIS_IDX = [469, 470, 471, 472, 469]
-_RIGHT_IRIS_IDX = [474, 475, 476, 477, 474]
-_POSE_CONNECTIONS = [(11, 12), (11, 13), (13, 15), (12, 14), (14, 16), (11, 23), (12, 24), (23, 24)]
-_HAND_FINGERS = [
-    [0, 1, 2, 3, 4],
-    [0, 5, 6, 7, 8],
-    [0, 9, 10, 11, 12],
-    [0, 13, 14, 15, 16],
-    [0, 17, 18, 19, 20],
-    [5, 9, 13, 17],
-]
+# Canonical Eye & Iris Landmark Indices matching visual reference (media_1793469479412_2be6ffaf.jpg)
+# User Right Eye (Screen Left): corners 33/133, eyelids 160/159/158/144/145/153, iris 468/469-472
+_RIGHT_EYE_CONTOUR_IDX = [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7, 33]
+_RIGHT_EYE_CORNERS_IDX = [33, 133]
+_RIGHT_EYE_EYELIDS_IDX = [160, 159, 158, 144, 145, 153]
+_RIGHT_IRIS_RING_IDX = [469, 470, 471, 472]
+_RIGHT_PUPIL_CENTER_IDX = 468
+
+# User Left Eye (Screen Right): corners 362/263, eyelids 385/386/387/380/374/373, iris 473/474-477
+_LEFT_EYE_CONTOUR_IDX = [362, 398, 384, 385, 386, 387, 388, 466, 263, 249, 390, 373, 374, 380, 381, 382, 362]
+_LEFT_EYE_CORNERS_IDX = [362, 263]
+_LEFT_EYE_EYELIDS_IDX = [385, 386, 387, 380, 374, 373]
+_LEFT_IRIS_RING_IDX = [474, 475, 476, 477]
+_LEFT_PUPIL_CENTER_IDX = 473
 
 
 class FocusMonitor:
@@ -225,104 +220,63 @@ class FocusMonitor:
         return self.update_multimodal(bgr_frame, yolo_detections=yolo_info)
 
     def draw_landmarks(self, bgr_frame: np.ndarray) -> None:
-        """Render upper-body landmarks matching visual reference (face mesh, eye contours, irises, lips, pose, hands)."""
+        """
+        Render lightweight, uncluttered eye-only landmarks matching reference (media_1793469479412_2be6ffaf.jpg):
+        - Thin yellow eyelid contour connections
+        - Distinct corner dots (magenta)
+        - Eyelid margin points (red)
+        - Iris ring (green) and pupil crosshair (yellow)
+        - Zero full-body skeleton, zero whole-face mesh wireframe
+        """
         if not getattr(config, "SHOW_LANDMARKS", True) or bgr_frame is None:
             return
         try:
             h, w = bgr_frame.shape[:2]
             f = self.last_features
-            if f is None:
+            if f is None or not f.face_detected or not f.face_landmarks_raw:
                 return
 
-            # 1. Pose skeleton (Cyan lines and joints)
-            if f.pose_landmarks_raw and len(f.pose_landmarks_raw) >= 25:
-                p_pts = [(int(p[0] * w), int(p[1] * h)) for p in f.pose_landmarks_raw]
-                for idx1, idx2 in _POSE_CONNECTIONS:
-                    if 0 <= idx1 < len(p_pts) and 0 <= idx2 < len(p_pts):
-                        cv2.line(bgr_frame, p_pts[idx1], p_pts[idx2], (255, 200, 0), 2, cv2.LINE_AA)
-                for idx in (11, 12, 13, 14, 15, 16, 23, 24):
-                    if 0 <= idx < len(p_pts):
-                        cv2.circle(bgr_frame, p_pts[idx], 4, (0, 255, 255), -1)
+            lm = f.face_landmarks_raw
+            if len(lm) < 468:
+                return
 
-            # 2. Hand skeletons (Yellow lines and orange joint dots)
-            if f.hand_landmarks_raw:
-                for h_lm in f.hand_landmarks_raw:
-                    if len(h_lm) >= 21:
-                        h_pts = [(int(p[0] * w), int(p[1] * h)) for p in h_lm]
-                        for finger in _HAND_FINGERS:
-                            for i in range(len(finger) - 1):
-                                if finger[i] < len(h_pts) and finger[i+1] < len(h_pts):
-                                    cv2.line(bgr_frame, h_pts[finger[i]], h_pts[finger[i+1]], (0, 230, 255), 2, cv2.LINE_AA)
-                        for pt in h_pts:
-                            cv2.circle(bgr_frame, pt, 2, (0, 180, 255), -1)
+            # 1. Screen-Left Eye (User Right Eye: X ~ 0.4)
+            r_contour = np.array([(int(lm[i][0] * w), int(lm[i][1] * h)) for i in _RIGHT_EYE_CONTOUR_IDX], dtype=np.int32)
+            cv2.polylines(bgr_frame, [r_contour], True, (0, 240, 255), 1, cv2.LINE_AA)
 
-            # 3. Face Mesh & Detailed Facial Contours (Matching Visual Reference)
-            if f.face_landmarks_raw and len(f.face_landmarks_raw) >= 468:
-                lm = f.face_landmarks_raw
-                pts = np.array([[int(p[0] * w), int(p[1] * h)] for p in lm[:468]], dtype=np.int32)
+            # Eye corner dots (magenta/pink)
+            for c_idx in _RIGHT_EYE_CORNERS_IDX:
+                cv2.circle(bgr_frame, (int(lm[c_idx][0] * w), int(lm[c_idx][1] * h)), 3, (255, 0, 255), -1, cv2.LINE_AA)
 
-                # Delaunay wireframe (thin grey lines)
-                subdiv = cv2.Subdiv2D((0, 0, w, h))
-                for p in pts:
-                    subdiv.insert((float(p[0]), float(p[1])))
-                triangles = subdiv.getTriangleList()
-                hull = cv2.convexHull(pts)
+            # Upper and lower eyelid points (red)
+            for e_idx in _RIGHT_EYE_EYELIDS_IDX:
+                cv2.circle(bgr_frame, (int(lm[e_idx][0] * w), int(lm[e_idx][1] * h)), 2, (0, 50, 255), -1, cv2.LINE_AA)
 
-                for t in triangles:
-                    pt1 = (int(t[0]), int(t[1]))
-                    pt2 = (int(t[2]), int(t[3]))
-                    pt3 = (int(t[4]), int(t[5]))
-                    if (cv2.pointPolygonTest(hull, (float(t[0]), float(t[1])), False) >= 0 and
-                        cv2.pointPolygonTest(hull, (float(t[2]), float(t[3])), False) >= 0 and
-                        cv2.pointPolygonTest(hull, (float(t[4]), float(t[5])), False) >= 0):
-                        cv2.line(bgr_frame, pt1, pt2, (150, 150, 150), 1, cv2.LINE_AA)
-                        cv2.line(bgr_frame, pt2, pt3, (150, 150, 150), 1, cv2.LINE_AA)
-                        cv2.line(bgr_frame, pt3, pt1, (150, 150, 150), 1, cv2.LINE_AA)
+            # Iris boundary (green) and pupil center crosshair (yellow)
+            if len(lm) >= 478:
+                r_pupil = (int(lm[_RIGHT_PUPIL_CENTER_IDX][0] * w), int(lm[_RIGHT_PUPIL_CENTER_IDX][1] * h))
+                r_iris = np.array([(int(lm[i][0] * w), int(lm[i][1] * h)) for i in _RIGHT_IRIS_RING_IDX], dtype=np.int32)
+                cv2.polylines(bgr_frame, [r_iris], True, (0, 230, 0), 1, cv2.LINE_AA)
+                cv2.drawMarker(bgr_frame, r_pupil, (0, 255, 255), cv2.MARKER_CROSS, 6, 1, cv2.LINE_AA)
 
-                # Face oval (smooth white line)
-                oval_pts = np.array([pts[i] for i in _FACE_OVAL_IDX if i < len(pts)], dtype=np.int32)
-                if len(oval_pts) > 0:
-                    cv2.polylines(bgr_frame, [oval_pts], False, (245, 245, 245), 2, cv2.LINE_AA)
+            # 2. Screen-Right Eye (User Left Eye: X ~ 0.6)
+            l_contour = np.array([(int(lm[i][0] * w), int(lm[i][1] * h)) for i in _LEFT_EYE_CONTOUR_IDX], dtype=np.int32)
+            cv2.polylines(bgr_frame, [l_contour], True, (0, 240, 255), 1, cv2.LINE_AA)
 
-                # Lips outer & inner (smooth white line)
-                outer_pts = np.array([pts[i] for i in _LIPS_OUTER_IDX if i < len(pts)], dtype=np.int32)
-                inner_pts = np.array([pts[i] for i in _LIPS_INNER_IDX if i < len(pts)], dtype=np.int32)
-                if len(outer_pts) > 0:
-                    cv2.polylines(bgr_frame, [outer_pts], True, (245, 245, 245), 2, cv2.LINE_AA)
-                if len(inner_pts) > 0:
-                    cv2.polylines(bgr_frame, [inner_pts], True, (245, 245, 245), 2, cv2.LINE_AA)
+            # Eye corner dots (magenta/pink)
+            for c_idx in _LEFT_EYE_CORNERS_IDX:
+                cv2.circle(bgr_frame, (int(lm[c_idx][0] * w), int(lm[c_idx][1] * h)), 3, (255, 0, 255), -1, cv2.LINE_AA)
 
-                # Left eye & eyebrow (vivid green line)
-                l_eye_pts = np.array([pts[i] for i in _LEFT_EYE_IDX if i < len(pts)], dtype=np.int32)
-                l_brow_pts = np.array([pts[i] for i in _LEFT_EYEBROW_IDX if i < len(pts)], dtype=np.int32)
-                if len(l_eye_pts) > 0:
-                    cv2.polylines(bgr_frame, [l_eye_pts], True, (0, 230, 80), 2, cv2.LINE_AA)
-                if len(l_brow_pts) > 0:
-                    cv2.polylines(bgr_frame, [l_brow_pts], False, (0, 230, 80), 2, cv2.LINE_AA)
+            # Upper and lower eyelid points (red)
+            for e_idx in _LEFT_EYE_EYELIDS_IDX:
+                cv2.circle(bgr_frame, (int(lm[e_idx][0] * w), int(lm[e_idx][1] * h)), 2, (0, 50, 255), -1, cv2.LINE_AA)
 
-                # Right eye & eyebrow (vivid red line)
-                r_eye_pts = np.array([pts[i] for i in _RIGHT_EYE_IDX if i < len(pts)], dtype=np.int32)
-                r_brow_pts = np.array([pts[i] for i in _RIGHT_EYEBROW_IDX if i < len(pts)], dtype=np.int32)
-                if len(r_eye_pts) > 0:
-                    cv2.polylines(bgr_frame, [r_eye_pts], True, (0, 50, 240), 2, cv2.LINE_AA)
-                if len(r_brow_pts) > 0:
-                    cv2.polylines(bgr_frame, [r_brow_pts], False, (0, 50, 240), 2, cv2.LINE_AA)
-
-                # Iris diamonds (green left, red right)
-                if len(lm) >= 478:
-                    all_pts = np.array([[int(p[0] * w), int(p[1] * h)] for p in lm], dtype=np.int32)
-                    l_iris_pts = np.array([all_pts[i] for i in _LEFT_IRIS_IDX if i < len(all_pts)], dtype=np.int32)
-                    r_iris_pts = np.array([all_pts[i] for i in _RIGHT_IRIS_IDX if i < len(all_pts)], dtype=np.int32)
-                    if len(l_iris_pts) > 0:
-                        cv2.polylines(bgr_frame, [l_iris_pts], True, (0, 230, 80), 2, cv2.LINE_AA)
-                    if len(r_iris_pts) > 0:
-                        cv2.polylines(bgr_frame, [r_iris_pts], True, (0, 50, 240), 2, cv2.LINE_AA)
-                    cv2.circle(bgr_frame, tuple(all_pts[468]), 2, (0, 230, 80), -1)
-                    cv2.circle(bgr_frame, tuple(all_pts[473]), 2, (0, 50, 240), -1)
-
-            elif f.face_box is not None:
-                fx1, fy1, fx2, fy2 = f.face_box
-                cv2.rectangle(bgr_frame, (fx1, fy1), (fx2, fy2), (0, 255, 180), 1)
+            # Iris boundary (green) and pupil center crosshair (yellow)
+            if len(lm) >= 478:
+                l_pupil = (int(lm[_LEFT_PUPIL_CENTER_IDX][0] * w), int(lm[_LEFT_PUPIL_CENTER_IDX][1] * h))
+                l_iris = np.array([(int(lm[i][0] * w), int(lm[i][1] * h)) for i in _LEFT_IRIS_RING_IDX], dtype=np.int32)
+                cv2.polylines(bgr_frame, [l_iris], True, (0, 230, 0), 1, cv2.LINE_AA)
+                cv2.drawMarker(bgr_frame, l_pupil, (0, 255, 255), cv2.MARKER_CROSS, 6, 1, cv2.LINE_AA)
 
         except Exception:
             pass

@@ -1,8 +1,8 @@
 # Live Project Status (CURRENT_STATUS) — AI Study Focus Monitor
 
-*Last Updated:* 2026-10-31T17:35:00+05:30  
-*Project Version:* 2.7.0  
-*Current Development Phase:* Complete Detection Accuracy & Computer Vision Overhaul (v2.7.0)
+*Last Updated:* 2026-10-31T18:35:00+05:30  
+*Project Version:* 2.8.0  
+*Current Development Phase:* Eye-Focused Detection, Performance & Drowsiness Accuracy (v2.8.0)
 
 ---
 
@@ -16,7 +16,7 @@
 | **Mode A (OpenCV Local)** | **OPERATIONAL** | Terminal execution via `python run_app.py --mode local` |
 | **Safe Diagnostic Mode** | **OPERATIONAL** | Terminal execution via `python run_app.py --diagnostic` (all audio alerts muted) |
 | **YOLOv8 Detection** | **OPERATIONAL** | `yolov8n.pt` loaded in CUDA/CPU with stride caching |
-| **MediaPipe Mesh/Pose/Hands** | **OPERATIONAL** | 478 face pts, 3D blendshapes (eyeBlinkLeft/Right), 33 pose, 21 hands |
+| **MediaPipe Mesh/Pose/Hands** | **OPERATIONAL** | 478 face pts, 3D blendshapes (eyeBlinkLeft/Right), Eye landmarks only (pose disabled for 30+ FPS) |
 | **Student Behaviour Taxonomy** | **OPERATIONAL** | 11 Parent categories, Granular phone interaction (`PHONE_VISIBLE`, `PHONE_HELD`, `PHONE_IN_USE`, `PHONE_CONFIRMED`) |
 | **Audio Alert Subsystem** | **OPERATIONAL** | Priority preemption active (P1–P5) with ongoing alert persistence & deduplication |
 | **Personal Calibration** | **OPERATIONAL** | Baseline head pitch/yaw/framing/EAR calibration wizard active |
@@ -57,7 +57,12 @@
 ---
 
 ## 5. Latest Completed Task
-Completed Master Computer Vision & Detection Accuracy Overhaul (v2.7.0):
+Completed Eye-Focused Detection, Performance & Drowsiness Accuracy Revision (v2.8.0):
+- Removed full-body skeleton visualization and CPU-intensive PoseLandmarker inference (boosted FPS to 30+).
+- Replaced face mesh wireframe with clean eye-only landmarks matching user visual reference (yellow eyelid contours, pink corner dots, red eyelid margin dots, green iris ring, yellow pupil crosshair).
+- Corrected left/right anatomical mapping and implemented physical eyelid aperture & iris detection.
+- Added fast reopening reset and downward note-taking pitch protection against false drowsiness alerts.
+- Verified all unit and integration test suites passing cleanly.
 1. Visual Debug Overlay matching reference image (media_1793466279822_e3417f17.jpg) with face mesh wireframe in grey, left eye & eyebrow in emerald green, right eye & eyebrow in red, iris diamonds with pupil centers, lips and face oval in white, body pose skeleton in cyan, and hand skeletons in yellow.
 2. Debug Overlay toggle button in Web Dashboard and keyboard toggle ('d'/'D') in OpenCV local Mode A.
 3. Pitch foreshortening compensation and iris pupil verification eliminating false drowsiness triggers when looking down writing or reading notes.

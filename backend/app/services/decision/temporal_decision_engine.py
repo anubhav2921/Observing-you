@@ -446,14 +446,25 @@ class TemporalDecisionEngine:
         # Rule: missing/invalid landmarks, normal blinks, or downward reading must NOT trigger drowsiness
         landmarks_valid = f.face_detected and getattr(f, "landmark_validity", True)
 
-        instantaneous_eye_closed = (
-            landmarks_valid
-            and (
-                (f.left_eye_state == EyeState.EYES_CLOSED and f.right_eye_state == EyeState.EYES_CLOSED)
-                or (f.eye_state in (EyeState.EYES_CLOSED, EyeState.BLINK, EyeState.BLINKING) and not f.iris_visible)
-                or (f.ear is not None and f.ear < config.EAR_CLOSE_THRESHOLD and f.eye_state not in (EyeState.UNKNOWN, EyeState.EYE_STATE_UNKNOWN) and not f.iris_visible)
-            )
-        )
+        # Independent Left & Right closure verification
+        left_closed = f.left_eye_state in (EyeState.LEFT_EYE_CLOSED, EyeState.EYES_CLOSED)
+        right_closed = f.right_eye_state in (EyeState.RIGHT_EYE_CLOSED, EyeState.EYES_CLOSED)
+        left_open = f.left_eye_state in (EyeState.LEFT_EYE_OPEN, EyeState.EYES_OPEN)
+        right_open = f.right_eye_state in (EyeState.RIGHT_EYE_OPEN, EyeState.EYES_OPEN)
+
+        # Both eyes must be closed (or one eye closed and other occluded by angle).
+        # If either eye is proven OPEN or irises are physically tracked, student is NOT asleep.
+        instantaneous_eye_closed = False
+        if landmarks_valid and not getattr(f, "iris_visible", False):
+            if not left_open and not right_open:
+                if (
+                    (left_closed and right_closed)
+                    or (left_closed and f.right_eye_state in (EyeState.EYE_STATE_UNKNOWN, EyeState.UNKNOWN))
+                    or (right_closed and f.left_eye_state in (EyeState.EYE_STATE_UNKNOWN, EyeState.UNKNOWN))
+                    or (f.eye_state in (EyeState.EYES_CLOSED, EyeState.BLINK, EyeState.BLINKING))
+                    or (f.ear is not None and f.ear < config.EAR_CLOSE_THRESHOLD)
+                ):
+                    instantaneous_eye_closed = True
 
         if not landmarks_valid:
             # Missing landmarks: never classify as closed eyes

@@ -2,6 +2,30 @@
 
 This document maintains a chronological record of all architectural updates, bug fixes, features, and test outcomes.
 
+## [2.8.0] — 2026-10-31
+
+### Changed & Optimized
+- **Eye-Only Landmark Visualization (Matching Visual Reference media_1793469479412_2be6ffaf.jpg):**
+  - Removed full-body skeleton visualization (shoulders, elbows, wrists, hips) and face mesh wireframe triangles.
+  - Implemented eye-only landmark overlays in both Frontend (drawHudOverlay in App.js) and OpenCV local mode (FocusMonitor in ocus_monitor.py):
+    - Yellow contour boundary (#facc15, thickness 1.8px) outlining eyelids.
+    - Magenta/pink landmark dots (#ec4899, r=3.0) at inner and outer eye corners (landmarks 33, 133 and 362, 263).
+    - Vivid red dots (#ef4444, r=2.2) along upper and lower eyelid margins (landmarks 160, 159, 158, 144, 145, 153 and 385, 386, 387, 380, 374, 373).
+    - Green iris boundary circle (#22c55e, thickness 1.6px) encompassing iris perimeter (landmarks 469-472 and 474-477).
+    - Yellow/cyan pupil center '+' crosshair at landmark 468 (right eye) and 473 (left eye).
+  - Preserves essential person bounding box, face bracket, and phone detection box overlays.
+
+- **CPU & GPU Performance Optimization:**
+  - Disabled CPU-intensive MediaPipe PoseLandmarker by default (ENABLE_POSE_DETECTION = False in config.py), bypassing redundant 35-40ms CPU inference overhead per frame.
+  - Achieved smooth 30+ FPS capture loop on Intel i5-12500H + RTX 3050 Ti systems.
+
+- **Drowsiness & Eye State Inconsistency Fixes:**
+  - Fixed left/right eye anatomical cross-wiring bug between MediaPipe blendshapes (eyeBlinkRight mapped to screen-left user right eye; eyeBlinkLeft mapped to screen-right user left eye).
+  - Replaced trivial coordinate check with physical iris tracking based on eyelid aperture ($\ge 4.0\text{px}$) and blink score ($< 0.50$).
+  - Added independent 8-state eye tracking (LEFT_EYE_OPEN, LEFT_EYE_CLOSED, RIGHT_EYE_OPEN, RIGHT_EYE_CLOSED, BLINK, EYES_PARTIALLY_CLOSED, EYES_CLOSED, EYE_STATE_UNKNOWN).
+  - Added fast eye reopening reset: $\ge 2$ consecutive open frames immediately cancel closure timer.
+  - Added downward pitch protection: note-writing and reading downward head pitches do not trigger fatigue alerts when irises are tracked or aperture is open.
+
 ## [2.7.0] — 2026-10-31
 
 ### Added & Improved

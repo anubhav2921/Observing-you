@@ -38,6 +38,11 @@ FACE_LANDMARKER_MODEL: str = str(MODELS_DIR / "face_landmarker.task") if (MODELS
 POSE_LANDMARKER_MODEL: str = str(MODELS_DIR / "pose_landmarker.task") if (MODELS_DIR / "pose_landmarker.task").is_file() else "pose_landmarker.task"
 HAND_LANDMARKER_MODEL: str = str(MODELS_DIR / "hand_landmarker.task") if (MODELS_DIR / "hand_landmarker.task").is_file() else "hand_landmarker.task"
 
+# Performance & Feature Toggles
+ENABLE_POSE_DETECTION: bool = False  # False = avoid running heavy CPU full-body pose inference
+SHOW_BODY_SKELETON: bool = False     # Disable full-body skeleton visualization
+SHOW_EYE_LANDMARKS: bool = True      # Dedicated eye contour & iris visualization
+
 # ──────────────────────────────────────────────
 #  YOLO & Object Detection Thresholds
 # ──────────────────────────────────────────────

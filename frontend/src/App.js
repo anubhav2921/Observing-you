@@ -12,17 +12,20 @@ import { CameraManager } from "./utils/camera_manager.js";
 import { MonitorWebSocketClient } from "./services/websocket_client.js";
 import { BrowserAudioController } from "./utils/audio_controller.js";
 
-// Canonical facial landmark drawing indices matching visual reference
-const FACE_OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10];
-const LIPS_OUTER = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61];
-const LIPS_INNER = [78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308, 415, 310, 311, 312, 13, 82, 81, 80, 191, 78];
-const LEFT_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246, 33];
-const LEFT_EYEBROW = [70, 63, 105, 66, 107, 55, 65, 52, 53, 46];
-const RIGHT_EYE = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398, 362];
-const RIGHT_EYEBROW = [300, 293, 334, 296, 336, 285, 295, 282, 283, 276];
-const LEFT_IRIS = [469, 470, 471, 472, 469];
-const RIGHT_IRIS = [474, 475, 476, 477, 474];
-const POSE_PAIRS = [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24]];
+// Canonical eye landmark indices matching visual reference media_1793469479412_2be6ffaf.jpg
+// Screen-Left Eye (User Right Eye)
+const RIGHT_EYE_CONTOUR = [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7, 33];
+const RIGHT_EYE_CORNERS = [33, 133];
+const RIGHT_EYE_EYELIDS = [160, 159, 158, 144, 145, 153];
+const RIGHT_IRIS_RING   = [469, 470, 471, 472];
+const RIGHT_PUPIL_CENTER = 468;
+
+// Screen-Right Eye (User Left Eye)
+const LEFT_EYE_CONTOUR  = [362, 398, 384, 385, 386, 387, 388, 466, 263, 249, 390, 373, 374, 380, 381, 382, 362];
+const LEFT_EYE_CORNERS  = [362, 263];
+const LEFT_EYE_EYELIDS  = [385, 386, 387, 380, 374, 373];
+const LEFT_IRIS_RING    = [474, 475, 476, 477];
+const LEFT_PUPIL_CENTER  = 473;
 
 export class StudyMonitorApp {
   constructor() {
@@ -346,76 +349,82 @@ export class StudyMonitorApp {
     // If overlay is disabled, skip all drawing
     if (!this.showDebugOverlay) return;
 
-    // 1. Draw Detailed Face Mesh & Contours if landmarks provided (Matching Visual Reference)
+    // 1. Draw Eye-Only Landmarks matching visual reference media_1793469479412_2be6ffaf.jpg
     if (obs.face_landmarks && Array.isArray(obs.face_landmarks) && obs.face_landmarks.length >= 468) {
       const flm = obs.face_landmarks;
       const getPt = (idx) => [flm[idx][0] * w, flm[idx][1] * h];
 
-      const drawPath = (indices, strokeColor, lineWidth, close = false) => {
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = lineWidth;
+      const drawEye = (contour, corners, eyelids, irisRing, pupilIdx) => {
+        // A. Yellow eyelid contour boundary
+        ctx.strokeStyle = "#facc15"; // Bright yellow
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
-        for (let i = 0; i < indices.length; i++) {
-          if (indices[i] >= flm.length) continue;
-          const pt = getPt(indices[i]);
+        for (let i = 0; i < contour.length; i++) {
+          if (contour[i] >= flm.length) continue;
+          const pt = getPt(contour[i]);
           if (i === 0) ctx.moveTo(pt[0], pt[1]);
           else ctx.lineTo(pt[0], pt[1]);
         }
-        if (close) ctx.closePath();
         ctx.stroke();
+
+        // B. Pink/Magenta dots at inner & outer eye corners
+        ctx.fillStyle = "#ec4899"; // Pink / Magenta
+        for (const idx of corners) {
+          if (idx >= flm.length) continue;
+          const pt = getPt(idx);
+          ctx.beginPath();
+          ctx.arc(pt[0], pt[1], 3.0, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+
+        // C. Red dots along upper and lower eyelid margins
+        ctx.fillStyle = "#ef4444"; // Vivid red
+        for (const idx of eyelids) {
+          if (idx >= flm.length) continue;
+          const pt = getPt(idx);
+          ctx.beginPath();
+          ctx.arc(pt[0], pt[1], 2.2, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+
+        // D. Green iris boundary ring and Yellow pupil crosshair (when iris landmarks present)
+        if (flm.length >= 478 && irisRing && pupilIdx !== undefined && pupilIdx < flm.length) {
+          // Green iris ring
+          ctx.strokeStyle = "#22c55e"; // Vivid green
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          for (let i = 0; i < irisRing.length; i++) {
+            if (irisRing[i] >= flm.length) continue;
+            const pt = getPt(irisRing[i]);
+            if (i === 0) ctx.moveTo(pt[0], pt[1]);
+            else ctx.lineTo(pt[0], pt[1]);
+          }
+          ctx.closePath();
+          ctx.stroke();
+
+          // Yellow '+' crosshair at pupil center
+          const pupil = getPt(pupilIdx);
+          ctx.strokeStyle = "#facc15";
+          ctx.lineWidth = 1.8;
+          const crossSize = 3.5;
+          ctx.beginPath();
+          ctx.moveTo(pupil[0] - crossSize, pupil[1]);
+          ctx.lineTo(pupil[0] + crossSize, pupil[1]);
+          ctx.moveTo(pupil[0], pupil[1] - crossSize);
+          ctx.lineTo(pupil[0], pupil[1] + crossSize);
+          ctx.stroke();
+        }
       };
 
       ctx.save();
-      // Face Oval (smooth white)
-      drawPath(FACE_OVAL, "#f8fafc", 2, false);
-      // Lips (smooth white)
-      drawPath(LIPS_OUTER, "#f8fafc", 2, true);
-      drawPath(LIPS_INNER, "#f8fafc", 1.5, true);
-
-      // Left eye & eyebrow (vivid green)
-      drawPath(LEFT_EYE, "#10b981", 2, true);
-      drawPath(LEFT_EYEBROW, "#10b981", 2, false);
-
-      // Right eye & eyebrow (vivid red)
-      drawPath(RIGHT_EYE, "#ef4444", 2, true);
-      drawPath(RIGHT_EYEBROW, "#ef4444", 2, false);
-
-      // Iris diamonds
-      if (flm.length >= 478) {
-        drawPath(LEFT_IRIS, "#10b981", 2, true);
-        drawPath(RIGHT_IRIS, "#ef4444", 2, true);
-        const lPupil = getPt(468);
-        const rPupil = getPt(473);
-        ctx.fillStyle = "#10b981";
-        ctx.beginPath();
-        ctx.arc(lPupil[0], lPupil[1], 2.5, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.fillStyle = "#ef4444";
-        ctx.beginPath();
-        ctx.arc(rPupil[0], rPupil[1], 2.5, 0, 2 * Math.PI);
-        ctx.fill();
-      }
+      // Render Screen-Left (User Right) Eye
+      drawEye(RIGHT_EYE_CONTOUR, RIGHT_EYE_CORNERS, RIGHT_EYE_EYELIDS, RIGHT_IRIS_RING, RIGHT_PUPIL_CENTER);
+      // Render Screen-Right (User Left) Eye
+      drawEye(LEFT_EYE_CONTOUR, LEFT_EYE_CORNERS, LEFT_EYE_EYELIDS, LEFT_IRIS_RING, LEFT_PUPIL_CENTER);
       ctx.restore();
     }
 
-    // 2. Draw Pose Skeleton (Cyan lines) if landmarks provided
-    if (obs.pose_landmarks && Array.isArray(obs.pose_landmarks) && obs.pose_landmarks.length >= 25) {
-      const plm = obs.pose_landmarks;
-      ctx.save();
-      ctx.strokeStyle = "#00e5ff";
-      ctx.lineWidth = 2.5;
-      for (const [i1, i2] of POSE_PAIRS) {
-        if (i1 < plm.length && i2 < plm.length) {
-          ctx.beginPath();
-          ctx.moveTo(plm[i1][0] * w, plm[i1][1] * h);
-          ctx.lineTo(plm[i2][0] * w, plm[i2][1] * h);
-          ctx.stroke();
-        }
-      }
-      ctx.restore();
-    }
-
-    // 3. Draw Person Bounding Box if detected and face not yet isolated
+    // 2. Draw Person Bounding Box if detected and face not yet isolated
     if (obs.person_box && Array.isArray(obs.person_box) && obs.person_box.length === 4) {
       const [px1, py1, px2, py2] = obs.person_box;
       const pbw = px2 - px1;

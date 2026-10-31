@@ -76,6 +76,10 @@ class EyeState(Enum):
     BLINK                 = auto()
     EYES_CLOSED           = auto()
     EYE_STATE_UNKNOWN     = auto()
+    LEFT_EYE_OPEN         = auto()
+    LEFT_EYE_CLOSED       = auto()
+    RIGHT_EYE_OPEN        = auto()
+    RIGHT_EYE_CLOSED      = auto()
 
     # Backward compatibility aliases
     OPEN                  = EYES_OPEN
