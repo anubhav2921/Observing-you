@@ -1,8 +1,48 @@
+# Python environments & caches
 .venv/
+venv/
+ENV/
+env/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.env
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Frontend builds & package managers
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vite/
+frontend/.vite/
+frontend/.parcel-cache/
+.npm/
+
+# Runtime recordings & logs
+logs/
+*.log
+*.avi
+*.mp4
+*.tmp
+debug_session_recording.avi
+
+# OS & Editor artifacts
 .idea/
 .vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets & local environment files
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+!*.example
+!.env.example

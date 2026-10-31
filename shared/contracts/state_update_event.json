@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "StateUpdateEvent",
+  "description": "Cross-language contract for real-time WebSocket state update payload.",
+  "type": "object",
+  "required": [
+    "timestamp",
+    "elapsed_seconds",
+    "state",
+    "display_name",
+    "color",
+    "confidence",
+    "duration_in_state",
+    "observations",
+    "alert",
+    "recommendation"
+  ],
+  "properties": {
+    "timestamp": { "type": "number" },
+    "elapsed_seconds": { "type": "number" },
+    "state": { "type": "string" },
+    "display_name": { "type": "string" },
+    "color": {
+      "type": "array",
+      "items": { "type": "integer" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "confidence": { "type": "number" },
+    "duration_in_state": { "type": "number" },
+    "observations": {
+      "type": "object",
+      "properties": {
+        "face_present": { "type": ["boolean", "null"] },
+        "face_occluded": { "type": "boolean" },
+        "person_present": { "type": ["boolean", "null"] },
+        "head_direction": { "type": "string" },
+        "eye_state": { "type": "string" },
+        "study_activity": { "type": "string" },
+        "inactivity_duration_sec": { "type": "number" },
+        "hand_near_face": { "type": "boolean" },
+        "camera_health": { "type": "string" }
+      }
+    },
+    "alert": {
+      "type": "object",
+      "properties": {
+        "active": { "type": "boolean" },
+        "alert_type": { "type": "string" },
+        "priority": { "type": "integer" },
+        "audio_clip": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "severity": { "type": "string" },
+        "reason": { "type": "string" }
+      }
+    },
+    "decision_rationale": {
+      "type": ["object", "null"],
+      "properties": {
+        "observation": { "type": "string" },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "decision": { "type": "string" },
+        "audio_action": { "type": "string" }
+      }
+    }
+  }
+}
+

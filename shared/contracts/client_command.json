@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ClientCommand",
+  "description": "Cross-language contract for client-to-server commands.",
+  "type": "object",
+  "required": ["action"],
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": ["start", "stop", "reset", "calibrate", "ping"]
+    },
+    "session_id": { "type": ["string", "null"] },
+    "calibration_data": { "type": ["object", "null"] }
+  }
+}
+
