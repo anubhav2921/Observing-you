@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Study Focus Monitor — Master Your Focus with Real-Time AI Intelligence</title>
+  <link rel="stylesheet" href="/src/styles/dashboard.css">
+  <link rel="stylesheet" href="/src/styles/landing.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+</head>
+<body class="landing-view-active">
+
+  <!-- =====================================================================
+       CINEMATIC INTRO ANIMATION OVERLAY
+       ===================================================================== -->
+  <div id="cinematic-intro" class="cinematic-intro-overlay" aria-label="Cinematic Intro Animation">
+    <div class="intro-bg-ambient"></div>
+    <div class="intro-particles-container">
+      <div class="intro-particle p1"></div>
+      <div class="intro-particle p2"></div>
+      <div class="intro-particle p3"></div>
+      <div class="intro-particle p4"></div>
+      <div class="intro-particle p5"></div>
+      <div class="intro-particle p6"></div>
+    </div>
+
+    <!-- Central Cinematic Hero Lockup -->
+    <div class="intro-center-stage">
+      <div class="intro-logo-box">
+        <div class="intro-logo-halo"></div>
+        <div class="intro-logo-icon">🎓</div>
+      </div>
+
+      <div class="intro-text-lockup">
+        <div class="intro-title-line-1">AI STUDY</div>
+        <div class="intro-title-line-2">FOCUS MONITOR</div>
+        <div class="intro-tagline">
+          <span>INTELLIGENCE</span>
+          <span class="intro-tagline-dot">•</span>
+          <span>FOCUS</span>
+          <span class="intro-tagline-dot">•</span>
+          <span>PERFORMANCE</span>
+        </div>
+      </div>
+
+      <!-- Cinematic Blue Light Sweep Effect -->
+      <div class="intro-light-sweep"></div>
+    </div>
+
+    <!-- Skip Intro Button -->
+    <button class="intro-skip-btn" id="intro-skip-btn" title="Skip Intro">
+      <span>Skip Intro</span>
+      <span>→</span>
+    </button>
+  </div>
+
+  <!-- =====================================================================
+       FUTURISTIC AI SAAS LANDING PAGE VIEW
+       ===================================================================== -->
+  <div id="landing-view" class="landing-page-root">
+    <!-- Ambient Background Elements -->
+    <div class="landing-bg-grid"></div>
+    <div class="landing-glow-orb landing-glow-orb-top"></div>
+    <div class="landing-glow-orb landing-glow-orb-left"></div>
+    <div class="landing-glow-orb landing-glow-orb-right"></div>
+
+    <!-- 3D Abstract Electric Neon Wave Sculptures (Mirroring visual reference) -->
+    <div class="hero-sculpture-left" aria-hidden="true">
+      <svg class="sculpture-group" viewBox="0 0 320 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sculptGradLeft1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.85" />
+            <stop offset="40%" stop-color="#38bdf8" stop-opacity="0.4" />
+            <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0.1" />
+          </linearGradient>
+          <linearGradient id="sculptGradLeft2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#818cf8" stop-opacity="0.7" />
+            <stop offset="60%" stop-color="#4f46e5" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="#0f172a" stop-opacity="0.05" />
+          </linearGradient>
+          <filter id="neonGlowLeft" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="10" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+        <!-- Layered 3D Pedestal Curves -->
+        <path d="M-40 580 C 60 500, 140 380, 110 240 C 90 140, 20 60, -40 20 Z" fill="url(#sculptGradLeft2)" />
+        <path d="M-50 550 C 90 470, 180 340, 150 190 C 130 90, 40 20, -50 0 Z" fill="url(#sculptGradLeft1)" />
+        <!-- Glowing Rims -->
+        <path d="M-40 550 C 90 470, 180 340, 150 190 C 130 90, 40 20, -50 0" stroke="#00f0ff" stroke-width="3" filter="url(#neonGlowLeft)" />
+        <path d="M-20 480 C 110 390, 170 270, 130 140" stroke="#818cf8" stroke-width="2" stroke-dasharray="6 6" opacity="0.6" />
+      </svg>
+    </div>
+
+    <div class="hero-sculpture-right" aria-hidden="true">
+      <svg class="sculpture-group" viewBox="0 0 320 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sculptGradRight1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.8" />
+            <stop offset="50%" stop-color="#6366f1" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0.1" />
+          </linearGradient>
+          <linearGradient id="sculptGradRight2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.6" />
+            <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="#0f172a" stop-opacity="0.05" />
+          </linearGradient>
+          <filter id="neonGlowRight" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="12" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+        <!-- Layered 3D Pedestal Curves -->
+        <path d="M-40 580 C 60 500, 140 380, 110 240 C 90 140, 20 60, -40 20 Z" fill="url(#sculptGradRight2)" />
+        <path d="M-50 550 C 90 470, 180 340, 150 190 C 130 90, 40 20, -50 0 Z" fill="url(#sculptGradRight1)" />
+        <!-- Glowing Rims -->
+        <path d="M-40 550 C 90 470, 180 340, 150 190 C 130 90, 40 20, -50 0" stroke="#c084fc" stroke-width="3" filter="url(#neonGlowRight)" />
+        <path d="M-20 480 C 110 390, 170 270, 130 140" stroke="#00f0ff" stroke-width="2" stroke-dasharray="6 6" opacity="0.6" />
+      </svg>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="landing-header">
+      <a href="#" class="landing-logo">
+        <div class="landing-logo-icon">🎓</div>
+        <span class="landing-logo-text">AI Study Focus</span>
+      </a>
+
+      <nav class="landing-nav-pill" aria-label="Main Navigation">
+        <a href="#" class="landing-nav-link">Home</a>
+        <a href="#features" class="landing-nav-link">Features</a>
+        <a href="#how-it-works" class="landing-nav-link">How It Works</a>
+        <a href="#technology" class="landing-nav-link">Technology</a>
+        <a href="#privacy" class="landing-nav-link">Privacy</a>
+      </nav>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="replay-intro-btn" class="replay-intro-pill" title="Replay Cinematic Intro">
+          <span>↺</span>
+          <span>Replay Intro</span>
+        </button>
+        <a href="#monitor" class="landing-btn-launch action-launch-monitor">
+          <span>Launch Monitor</span>
+          <span>→</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Hero Section -->
+    <main>
+      <section class="landing-hero" id="landing-hero">
+        <!-- Tag Pill -->
+        <div class="hero-tag">
+          <span class="hero-tag-icon">✦</span>
+          <span>AI-Powered Study Intelligence</span>
+        </div>
+
+        <!-- Hero Headline -->
+        <h1 class="hero-headline">
+          Master Your Focus.<br>
+          <span class="landing-gradient-text">Unlock Your Potential.</span>
+        </h1>
+
+        <!-- Supporting Description -->
+        <p class="hero-description">
+          Your intelligent AI study companion. Understand your study habits, recognize distractions and build better focus through real-time behavioural insights.
+        </p>
+
+        <!-- CTA Action Buttons -->
+        <div class="hero-cta-group">
+          <a href="#monitor" class="landing-btn-primary action-start-monitoring">
+            <span>Start Monitoring</span>
+            <span>➔</span>
+          </a>
+          <a href="#features" class="landing-btn-secondary">
+            <span>Explore Features</span>
+            <span>▾</span>
+          </a>
+        </div>
+
+        <!-- Trust Indicators -->
+        <div class="hero-trust-indicator">
+          <div class="hero-trust-item"><span class="dot"></span> 100% In-Memory Processing</div>
+          <div class="hero-trust-item"><span class="dot"></span> No Video Stored or Uploaded</div>
+          <div class="hero-trust-item"><span class="dot"></span> Sub-Millisecond AI Latency</div>
+        </div>
+
+        <!-- 3D Perspective Dashboard Preview Mockup -->
+        <div class="hero-mockup-wrapper">
+          <div class="hero-mockup-glow"></div>
+          <div class="hero-mockup-container">
+            <div class="mockup-window-header">
+              <div class="mockup-window-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="mockup-window-title">
+                <span>⚡ AI Study Focus Monitor — Live Behavioral Stream</span>
+              </div>
+              <div class="mockup-live-indicator">
+                <span class="pulse"></span>
+                <span>LIVE FEED</span>
+              </div>
+            </div>
+
+            <div class="mockup-grid">
+              <!-- Simulated Camera View -->
+              <div class="mockup-feed-col">
+                <div class="mockup-video-canvas">
+                  <div class="mockup-face-sim">
+                    <div class="mockup-mesh-points"></div>
+                    <div class="mockup-eye-line">
+                      <div class="mockup-eye-node"></div>
+                      <div class="mockup-eye-node"></div>
+                    </div>
+                  </div>
+                  <div class="mockup-feed-tag">STUDENT: ACTIVE</div>
+                  <div class="mockup-feed-fps">29.8 FPS</div>
+                </div>
+              </div>
+
+              <!-- Live Telemetry & AI Rationale -->
+              <div class="mockup-telemetry-col">
+                <div class="mockup-card mockup-state-card">
+                  <div class="mockup-card-label">Primary Authoritative State</div>
+                  <div class="mockup-state-val">
+                    <span>[OK] STUDYING</span>
+                    <span class="mockup-state-badge">94% Confidence</span>
+                  </div>
+                  <div class="mockup-bar-track">
+                    <div class="mockup-bar-fill"></div>
+                  </div>
+                </div>
+
+                <div class="mockup-metrics-row">
+                  <div class="mockup-metric-box">
+                    <div class="mockup-metric-title">SESSION DURATION</div>
+                    <div class="mockup-metric-value">00:42:15</div>
+                  </div>
+                  <div class="mockup-metric-box">
+                    <div class="mockup-metric-title">EYE RATIO (EAR)</div>
+                    <div class="mockup-metric-value" style="color: #00f0ff;">0.28 (Open)</div>
+                  </div>
+                  <div class="mockup-metric-box">
+                    <div class="mockup-metric-title">HEAD DIRECTION</div>
+                    <div class="mockup-metric-value">Facing Screen</div>
+                  </div>
+                  <div class="mockup-metric-box">
+                    <div class="mockup-metric-title">POSTURE ANGLE</div>
+                    <div class="mockup-metric-value">Upright (-3.5°)</div>
+                  </div>
+                </div>
+
+                <div class="mockup-card mockup-reasoning-card">
+                  <div class="mockup-reasoning-header">
+                    <span class="mockup-reasoning-title">🔍 Why did the AI make this decision?</span>
+                    <span style="font-size: 0.7rem; color: #818cf8;">EXPLAINABLE AI</span>
+                  </div>
+                  <p class="mockup-reasoning-text">
+                    <strong>Observation:</strong> Attentive head pitch, centered eye gaze, and desk study materials verified. No off-task devices detected.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           FEATURES SECTION (8 CAPABILITIES)
+           =================================================================== -->
+      <section id="features" class="landing-section">
+        <div class="section-header">
+          <span class="section-tag">Powerful Capabilities</span>
+          <h2 class="section-title">Everything You Need to Understand Your Focus</h2>
+          <p class="section-subtitle">
+            A comprehensive multimodal computer vision pipeline engineered to protect your study rhythm without intrusive interruptions.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <!-- 1. Real-Time Study Monitoring -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🎯</div>
+            <h3 class="feature-title">Real-Time Study Monitoring</h3>
+            <p class="feature-desc">
+              Continuous 30 FPS analysis of head posture, gaze vector, and engagement levels to verify whether you are actively locked into your work.
+            </p>
+            <span class="feature-badge">Active Engine</span>
+          </div>
+
+          <!-- 2. Eye Closure Detection -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">👁️</div>
+            <h3 class="feature-title">Eye Closure Detection</h3>
+            <p class="feature-desc">
+              Sub-millimeter 3D FaceLandmarker Eye Aspect Ratio (EAR) calculations reliably disambiguate natural blinks from prolonged fatigue closures.
+            </p>
+            <span class="feature-badge">MediaPipe Mesh</span>
+          </div>
+
+          <!-- 3. Drowsiness Monitoring -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🌙</div>
+            <h3 class="feature-title">Drowsiness Monitoring</h3>
+            <p class="feature-desc">
+              Multi-signal fusion combining sustained eye closure (> 1.8s) and downward head drooping angles to catch mental exhaustion before it burns you out.
+            </p>
+            <span class="feature-badge">Fatigue Analytics</span>
+          </div>
+
+          <!-- 4. Phone Usage Detection -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">📱</div>
+            <h3 class="feature-title">Phone Usage Detection</h3>
+            <p class="feature-desc">
+              4-tier interaction filter (<tt>VISIBLE</tt> → <tt>HELD</tt> → <tt>IN_USE</tt> → <tt>CONFIRMED</tt>) distinguishes a phone resting on a desk from active scrolling.
+            </p>
+            <span class="feature-badge">YOLOv8 + Hands</span>
+          </div>
+
+          <!-- 5. Distraction Recognition -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🧭</div>
+            <h3 class="feature-title">Distraction Recognition</h3>
+            <p class="feature-desc">
+              Identifies persistent sideways looking, ceiling staring, door scanning, or prolonged camera staring using 3D SolvePnP head yaw and pitch tracking.
+            </p>
+            <span class="feature-badge">Spatial Gaze</span>
+          </div>
+
+          <!-- 6. Reading and Writing Detection -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">📖</div>
+            <h3 class="feature-title">Reading & Writing Detection</h3>
+            <p class="feature-desc">
+              Smart pitch compensation prevents downward notebook and physical textbook reading postures from falsely triggering drowsiness alerts.
+            </p>
+            <span class="feature-badge">Context-Aware</span>
+          </div>
+
+          <!-- 7. Study Session Analytics -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">📊</div>
+            <h3 class="feature-title">Study Session Analytics</h3>
+            <p class="feature-desc">
+              Tracks session durations, focus consistency ratios, transition histories, and micro-break recommendations for deliberate, habit-forming study.
+            </p>
+            <span class="feature-badge">Session Metrics</span>
+          </div>
+
+          <!-- 8. Intelligent Audio Alerts -->
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🔊</div>
+            <h3 class="feature-title">Intelligent Audio Alerts</h3>
+            <p class="feature-desc">
+              Strict priority preemption (P1–P5) with cooldown protection and instant mute upon focus recovery, ensuring cues assist rather than disrupt.
+            </p>
+            <span class="feature-badge">Priority Audio</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           HOW IT WORKS (4-STEP WORKFLOW)
+           =================================================================== -->
+      <section id="how-it-works" class="landing-section">
+        <div class="section-header">
+          <span class="section-tag">Simple & Seamless</span>
+          <h2 class="section-title">Your Study Session, Made Intelligent</h2>
+          <p class="section-subtitle">
+            Get up and running in seconds with zero complicated hardware or cloud setups.
+          </p>
+        </div>
+
+        <div class="workflow-track">
+          <!-- Step 1 -->
+          <div class="workflow-step">
+            <div class="workflow-step-num">01</div>
+            <h3 class="workflow-step-title">Start Your Session</h3>
+            <p class="workflow-step-desc">
+              Click Launch Monitor to enter the distraction-free workspace. Optionally calibrate your natural sitting height.
+            </p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="workflow-step">
+            <div class="workflow-step-num">02</div>
+            <h3 class="workflow-step-title">Enable Your Camera</h3>
+            <p class="workflow-step-desc">
+              Grant browser webcam permission. All video analysis occurs strictly in volatile memory on your device.
+            </p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="workflow-step">
+            <div class="workflow-step-num">03</div>
+            <h3 class="workflow-step-title">AI Analyses Behaviour</h3>
+            <p class="workflow-step-desc">
+              YOLOv8 and MediaPipe coordinate in real time to classify focus, detect fatigue, and arbitrate distractions.
+            </p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="workflow-step">
+            <div class="workflow-step-num">04</div>
+            <h3 class="workflow-step-title">Understand Study Insights</h3>
+            <p class="workflow-step-desc">
+              Receive gentle audio reminders when attention wavers and read transparent reasoning explaining every AI judgment.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TECHNOLOGY STACK
+           =================================================================== -->
+      <section id="technology" class="landing-section">
+        <div class="section-header">
+          <span class="section-tag">Engineering Stack</span>
+          <h2 class="section-title">Powered by Intelligent Technology</h2>
+          <p class="section-subtitle">
+            Engineered with modern, high-throughput frameworks optimized for high frame-rate edge computer vision.
+          </p>
+        </div>
+
+        <div class="tech-grid">
+          <div class="tech-card">
+            <div class="tech-icon">🐍</div>
+            <div>
+              <div class="tech-name">Python 3.11</div>
+              <div class="tech-role">Core Architecture</div>
+              <div class="tech-desc">Asynchronous pipeline orchestration, temporal arbitration, and state machine transitions.</div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon">⚡</div>
+            <div>
+              <div class="tech-name">FastAPI</div>
+              <div class="tech-role">ASGI Web Layer</div>
+              <div class="tech-desc">Sub-millisecond REST endpoints, lifecycle hooks, and high-performance server architecture.</div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon">🔍</div>
+            <div>
+              <div class="tech-name">YOLOv8</div>
+              <div class="tech-role">Object Detection</div>
+              <div class="tech-desc">Ultralytics nano model detecting persons, cell phones, laptops, and study materials.</div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon">📐</div>
+            <div>
+              <div class="tech-name">MediaPipe</div>
+              <div class="tech-role">Geometric Landmarkers</div>
+              <div class="tech-desc">Google 478-point 3D Face Mesh, 33-point Pose, and 21-point dual Hand landmark tracking.</div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon">👁️</div>
+            <div>
+              <div class="tech-name">OpenCV</div>
+              <div class="tech-role">Computer Vision</div>
+              <div class="tech-desc">Real-time frame transformations, SolvePnP head pose estimation, and optical flow calculations.</div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon">🔥</div>
+            <div>
+              <div class="tech-name">PyTorch</div>
+              <div class="tech-role">Deep Learning Engine</div>
+              <div class="tech-desc">Optimized neural tensor calculations and model inference pipeline acceleration.</div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon">🚀</div>
+            <div>
+              <div class="tech-name">CUDA Acceleration</div>
+              <div class="tech-role">GPU Compute</div>
+              <div class="tech-desc">NVIDIA hardware acceleration delivering fluid 30 FPS inference on modern RTX GPUs.</div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon">🌐</div>
+            <div>
+              <div class="tech-name">WebSockets</div>
+              <div class="tech-role">Full-Duplex Streaming</div>
+              <div class="tech-desc">Zero-lag binary frame ingestion with client-server flow control and backpressure ACKs.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           PRIVACY SECTION
+           =================================================================== -->
+      <section id="privacy" class="landing-section">
+        <div class="privacy-container">
+          <div class="section-header" style="margin-bottom: 30px;">
+            <span class="section-tag">Privacy Guarantee</span>
+            <h2 class="section-title">Your Privacy Matters</h2>
+            <p class="section-subtitle">
+              We believe attention technology should empower students, not surveil them. Our system is engineered with privacy transparency by default.
+            </p>
+          </div>
+
+          <div class="privacy-grid">
+            <div class="privacy-item">
+              <div class="privacy-item-icon">🔒</div>
+              <h3 class="privacy-item-title">In-Memory Analysis</h3>
+              <p class="privacy-item-desc">
+                Video frames are processed in ephemeral memory buffers solely to extract geometric metrics and are immediately discarded.
+              </p>
+            </div>
+
+            <div class="privacy-item">
+              <div class="privacy-item-icon">🚫</div>
+              <h3 class="privacy-item-title">Zero Video Storage</h3>
+              <p class="privacy-item-desc">
+                Your camera video is never persisted to disk, never recorded, and never uploaded to remote cloud databases or third parties.
+              </p>
+            </div>
+
+            <div class="privacy-item">
+              <div class="privacy-item-icon">🎛️</div>
+              <h3 class="privacy-item-title">Student-First Control</h3>
+              <p class="privacy-item-desc">
+                You retain complete control over when the camera begins and ends. Stop monitoring at any time with a single tap.
+              </p>
+            </div>
+
+            <div class="privacy-item">
+              <div class="privacy-item-icon">💡</div>
+              <h3 class="privacy-item-title">Explainable Decisions</h3>
+              <p class="privacy-item-desc">
+                Every state transition displays the exact observation, eye aspect ratio, and reasoning that triggered it. Zero black boxes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           FINAL CALL TO ACTION
+           =================================================================== -->
+      <section class="landing-final-cta">
+        <div class="final-cta-card">
+          <h2 class="final-cta-title">Ready to Take Control of Your Focus?</h2>
+          <p class="final-cta-desc">
+            Start understanding your study habits and build a more intentional, high-performance study routine today.
+          </p>
+          <a href="#monitor" class="landing-btn-primary action-start-monitoring" style="font-size: 1.1rem; padding: 16px 42px;">
+            <span>Start Monitoring Now</span>
+            <span>➔</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="landing-logo" style="margin-bottom: 12px;">
+            <div class="landing-logo-icon">🎓</div>
+            <span class="landing-logo-text">AI Study Focus Monitor</span>
+          </div>
+          <p class="footer-desc">
+            Intelligent, privacy-conscious computer vision for student attention analytics, fatigue management, and deep study habits.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <div>
+            <div class="footer-col-title">Navigation</div>
+            <ul class="footer-col-list">
+              <li><a href="#">Home</a></li>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#how-it-works">How It Works</a></li>
+              <li><a href="#technology">Technology</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">Product</div>
+            <ul class="footer-col-list">
+              <li><a href="#monitor" class="action-launch-monitor">Launch Dashboard</a></li>
+              <li><a href="#privacy">Privacy Principles</a></li>
+              <li><a href="https://github.com" target="_blank" rel="noopener">Open Architecture</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">System Status</div>
+            <ul class="footer-col-list">
+              <li><span style="color: #10b981;">●</span> FastAPI Backend Operational</li>
+              <li><span style="color: #10b981;">●</span> YOLOv8 on CUDA</li>
+              <li><span style="color: #10b981;">●</span> MediaPipe 478 Mesh</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 AI Study Focus Monitor. Engineered for deep work and academic excellence.</div>
+        <div style="color: var(--lp-text-muted);">Privacy-First • Local Real-Time Processing</div>
+      </div>
+    </footer>
+  </div>
+
+
+  <!-- =====================================================================
+       EXISTING MONITORING DASHBOARD VIEW
+       (Completely preserved, untouched IDs and component hierarchy)
+       ===================================================================== -->
+  <div id="dashboard-view" class="dashboard-view" style="display: none;">
+    <!-- Sleek Top Return Bar -->
+    <div class="dashboard-return-bar">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 1.1rem;">🎓</span>
+        <strong style="color: #ffffff;">AI Study Focus Monitor</strong>
+        <span style="color: #64748b; font-size: 0.8rem;">| Active Workspace Session</span>
+      </div>
+      <a href="#" class="dashboard-return-btn" id="return-to-landing-btn">
+        <span>◂</span>
+        <span>Return to Landing Page</span>
+      </a>
+    </div>
+
+    <!-- Original Monitoring Dashboard App Container (100% Intact) -->
+    <div class="app-container">
+      <!-- Top Navigation & Header -->
+      <header class="app-header">
+        <div class="header-brand">
+          <div class="brand-icon">🎓</div>
+          <div>
+            <h1 class="brand-title">AI Study Focus Monitor</h1>
+            <p class="brand-subtitle">Real-Time Multi-Modal Attention, Posture & Fatigue Analytics</p>
+          </div>
+        </div>
+
+        <div class="header-stats">
+          <div class="stat-pill" id="session-duration-pill">
+            <span class="stat-icon">⏱️</span>
+            <span class="stat-label">Session:</span>
+            <span class="stat-value" id="session-duration">00:00:00</span>
+          </div>
+
+          <div class="stat-pill" id="fps-pill">
+            <span class="stat-icon">⚡</span>
+            <span class="stat-label">Inference:</span>
+            <span class="stat-value" id="fps-value">0.0 FPS</span>
+          </div>
+
+          <button class="audio-toggle-btn" id="audio-toggle-btn" title="Toggle browser audio alerts">
+            <span id="audio-icon">🔊</span>
+            <span id="audio-text">Audio Alerts: ON</span>
+          </button>
+
+          <div class="connection-status-badge status-disconnected" id="connection-badge">
+            <span class="status-dot"></span>
+            <span id="connection-text">Disconnected</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Global Control Bar -->
+      <section class="control-bar">
+        <div class="control-actions">
+          <button class="btn btn-primary" id="start-btn">
+            <span class="btn-icon">▶</span>
+            <span>Start Monitoring</span>
+          </button>
+
+          <button class="btn btn-danger" id="stop-btn" disabled>
+            <span class="btn-icon">■</span>
+            <span>Stop Monitoring</span>
+          </button>
+
+          <button class="btn btn-secondary" id="camera-perm-btn">
+            <span class="btn-icon">📷</span>
+            <span>Request Camera</span>
+          </button>
+
+          <button class="btn btn-secondary" id="calibrate-btn">
+            <span class="btn-icon">🎯</span>
+            <span>Calibrate</span>
+          </button>
+
+          <button class="btn btn-secondary" id="reset-btn">
+            <span class="btn-icon">🔄</span>
+            <span>Reset Session</span>
+          </button>
+        </div>
+
+        <div class="camera-indicator">
+          <span class="status-dot-sm" id="camera-status-dot"></span>
+          <span id="camera-status-text">Camera: Standby</span>
+        </div>
+      </section>
+
+      <!-- Main Dashboard Grid -->
+      <main class="dashboard-grid">
+        <!-- Left Column: Video Feed & Independent Behavioral Signals -->
+        <div class="feed-column">
+          <!-- Live Camera Card -->
+          <div class="panel-card video-card">
+            <div class="card-header">
+              <h2 class="card-title">Live Study Workspace Feed</h2>
+              <span class="card-badge" id="camera-info-bar">Browser WebRTC</span>
+            </div>
+
+            <div class="video-container">
+              <!-- Video Placeholder / Standby Screen -->
+              <div class="video-placeholder" id="video-placeholder">
+                <div class="placeholder-content">
+                  <div class="placeholder-icon">📷</div>
+                  <p class="placeholder-title">Camera Feed Inactive</p>
+                  <p class="placeholder-desc">Click "Start Monitoring" or "Request Camera" to begin real-time focus analysis.</p>
+                </div>
+              </div>
+
+              <!-- Camera Error / Recovery Banner -->
+              <div class="camera-error-banner" id="camera-error-banner" style="display: none;">
+                <span class="error-icon">⚠️</span>
+                <span id="camera-error-message">Camera feed interrupted. Reconnecting...</span>
+              </div>
+
+              <!-- HTML5 Live Video Element -->
+              <video id="webcam-video" autoplay playsinline muted></video>
+
+              <!-- Hidden Frame Capture Canvas (Transfers to WebSocket) -->
+              <canvas id="hidden-capture-canvas" style="display: none;"></canvas>
+
+              <!-- Optional HUD Overlay Canvas (Draws facial landmarks) -->
+              <canvas id="hud-overlay-canvas"></canvas>
+            </div>
+
+            <div class="video-privacy-note">
+              <span>🔒 <strong>Camera Privacy & Permissions:</strong> Video frames are processed strictly in real-time. By default, no video is stored or uploaded. If prompted by your browser, please select <strong>Allow</strong> for camera access.</span>
+            </div>
+          </div>
+
+          <!-- Independent Multi-Modal Signals Matrix -->
+          <div class="panel-card signals-card">
+            <div class="card-header">
+              <h2 class="card-title">Independent Behavioral Signals</h2>
+              <span class="card-badge">Multi-Modal</span>
+            </div>
+
+            <div class="signals-grid">
+              <div class="signal-item">
+                <span class="signal-label">Face Present:</span>
+                <span class="signal-value" id="obs-face-present-val">--</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-label">Face Occluded:</span>
+                <span class="signal-value" id="obs-face-occluded-val">--</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-label">Person Present:</span>
+                <span class="signal-value" id="obs-person-present-val">--</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-label">Head Direction:</span>
+                <span class="signal-value" id="obs-head-direction-val">--</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-label">Eye State (EAR):</span>
+                <span class="signal-value" id="obs-eye-state-val">--</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-label">Study Activity:</span>
+                <span class="signal-value" id="obs-study-activity-val">--</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-label">Inactivity Timer:</span>
+                <span class="signal-value" id="obs-inactivity-val">0.0s</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-label">Hand Near Face:</span>
+                <span class="signal-value" id="obs-hand-near-face-val">--</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-label">Camera Health:</span>
+                <span class="signal-value" id="obs-camera-health-val">OK</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-label">Phone Status:</span>
+                <span class="signal-value" id="obs-phone-status-val">--</span>
+              </div>
+              <div class="signal-item" style="grid-column: span 2;">
+                <span class="signal-label">Behavior Taxonomy:</span>
+                <span class="signal-value" id="obs-behavior-category-val">--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: State, Recommendations, Rationale & History -->
+        <div class="analytics-column">
+          <!-- Primary Authoritative State Card -->
+          <div class="panel-card state-card" id="state-card">
+            <div class="card-header">
+              <span class="state-card-pretitle">Primary Authoritative State</span>
+              <span class="state-duration-badge" id="state-duration-badge">0.0s</span>
+            </div>
+
+            <div class="state-main-display">
+              <h2 class="state-name" id="state-name">[~] MONITORING</h2>
+              <div class="confidence-container">
+                <span class="confidence-label">Confidence:</span>
+                <div class="confidence-bar-track">
+                  <div class="confidence-bar-fill" id="confidence-bar" style="width: 0%;"></div>
+                </div>
+                <span class="confidence-val" id="confidence-value">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Positive Study Coach & Guidance Panel -->
+          <div class="panel-card recommendation-card" id="recommendation-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <span class="rec-icon">💡</span>
+                <span>What should I do now?</span>
+              </h3>
+              <span class="badge badge-positive" id="recommendation-severity">GUIDANCE</span>
+            </div>
+            <div class="recommendation-body">
+              <h4 class="recommendation-title" id="recommendation-title">Getting Ready</h4>
+              <p class="recommendation-message" id="recommendation-message">Click Start Monitoring to begin tracking your study rhythm.</p>
+              <p class="recommendation-reason" id="recommendation-reason">Why: Awaiting active study session start.</p>
+            </div>
+          </div>
+
+          <!-- Explainable AI Decision Rationale -->
+          <div class="panel-card rationale-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <span class="rec-icon">🔍</span>
+                <span>Why did the AI make this decision?</span>
+              </h3>
+              <span class="card-badge">AI REASONING</span>
+            </div>
+            <div class="rationale-content">
+              <div class="rationale-row">
+                <span class="rationale-label">OBSERVATION:</span>
+                <span class="rationale-val" id="rationale-obs">Awaiting initial frame inference</span>
+              </div>
+              <div class="rationale-row">
+                <span class="rationale-label">ADDITIONAL EVIDENCE:</span>
+                <ul class="rationale-list" id="rationale-evidence-list">
+                  <li>Study materials = Standby</li>
+                  <li>Eyes = Standby</li>
+                  <li>Body posture = Standby</li>
+                </ul>
+              </div>
+              <div class="rationale-row" style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(255,255,255,0.1);">
+                <span class="rationale-label">DECISION:</span>
+                <span class="rationale-val" id="rationale-decision" style="color: var(--color-reading);">INITIALIZING</span>
+                <span class="rationale-label" style="margin-left: 14px;">AUDIO:</span>
+                <span class="rationale-val" id="rationale-audio">No alert triggered.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert & Audio Status Card -->
+          <div class="panel-card alert-card" id="alert-card">
+            <div class="card-header">
+              <h3 class="card-title">Alert & Audio Controller</h3>
+              <span class="badge badge-standby" id="alert-priority-badge">STANDBY</span>
+            </div>
+            <div class="alert-display">
+              <div class="alert-icon-wrap" id="alert-icon">🔕</div>
+              <div class="alert-info">
+                <h4 class="alert-name" id="alert-name">No Active Alert</h4>
+                <p class="alert-reason" id="alert-reason">Normal studying flow. Audio alert muted.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session State Transition History -->
+          <div class="panel-card history-card">
+            <div class="card-header">
+              <h3 class="card-title">Session Event History & State Transitions</h3>
+              <button class="btn-text" id="clear-history-btn">Clear Log</button>
+            </div>
+            <div class="history-timeline" id="history-timeline">
+              <div class="history-empty" id="history-empty">No state transitions recorded yet.</div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Camera Permission Request Modal -->
+      <div class="modal-backdrop" id="permission-modal" style="display: none;">
+        <div class="modal-dialog">
+          <div class="modal-header">
+            <h3>📷 Camera Permission Required</h3>
+            <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>The AI Study Focus Monitor needs access to your camera to analyze posture, eye gaze, and attentiveness in real-time.</p>
+            <p><strong>Your Privacy:</strong> Video frames are processed strictly in volatile memory. No video or images are stored or transmitted to external servers.</p>
+            <p>Please click <strong>Allow</strong> in the browser prompt that appears at the top of your screen.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="modal-dismiss-btn">Dismiss</button>
+            <button class="btn btn-primary" id="modal-retry-btn">Try Requesting Again</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calibration Modal Dialog -->
+      <div class="modal-backdrop" id="calibration-modal" style="display: none;">
+        <div class="modal-dialog">
+          <div class="modal-header">
+            <h3>🎯 Personal Workspace Calibration</h3>
+            <button class="modal-close-btn" id="calib-close-btn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>Calibrate your workspace to adapt the AI to your personal camera height, sitting angle, and natural head tilt.</p>
+            <div class="calib-steps">
+              <div class="calib-step">
+                <strong>Step 1: Normal Sitting Posture</strong>
+                <p>Sit upright and look comfortably at your screen.</p>
+              </div>
+              <div class="calib-step">
+                <strong>Step 2: Downward Reading Angle</strong>
+                <p>Look down at your desk, notebook, or keyboard as you normally study.</p>
+              </div>
+            </div>
+            <div class="calib-progress-box">
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="calib-progress-bar" style="width: 0%;"></div>
+              </div>
+              <span id="calib-status-text">Click "Begin Calibration" when seated normally.</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="calib-cancel-btn">Cancel</button>
+            <button class="btn btn-primary" id="calib-start-btn">Begin Calibration</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Scripts -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
