@@ -1,0 +1,148 @@
+{
+  "per_class_metrics": {
+    "STUDYING": {
+      "TP": 240,
+      "FP": 7,
+      "FN": 47,
+      "precision": 0.9717,
+      "recall": 0.8362,
+      "f1_score": 0.8989,
+      "support": 287
+    },
+    "STUDYING_READING": {
+      "TP": 197,
+      "FP": 40,
+      "FN": 3,
+      "precision": 0.8312,
+      "recall": 0.985,
+      "f1_score": 0.9016,
+      "support": 200
+    },
+    "STUDYING_WRITING": {
+      "TP": 98,
+      "FP": 0,
+      "FN": 2,
+      "precision": 1.0,
+      "recall": 0.98,
+      "f1_score": 0.9899,
+      "support": 100
+    },
+    "LOOKING_AWAY": {
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "support": 0
+    },
+    "STUDY_ACTIVITY_UNCONFIRMED": {
+      "TP": 83,
+      "FP": 0,
+      "FN": 2,
+      "precision": 1.0,
+      "recall": 0.9765,
+      "f1_score": 0.9881,
+      "support": 85
+    },
+    "INACTIVITY_WARNING": {
+      "TP": 40,
+      "FP": 0,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 40
+    },
+    "DISTRACTED": {
+      "TP": 39,
+      "FP": 3,
+      "FN": 1,
+      "precision": 0.9286,
+      "recall": 0.975,
+      "f1_score": 0.9512,
+      "support": 40
+    },
+    "POSSIBLE_DROWSINESS": {
+      "TP": 42,
+      "FP": 0,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 42
+    },
+    "FACE_OCCLUDED": {
+      "TP": 45,
+      "FP": 2,
+      "FN": 0,
+      "precision": 0.9574,
+      "recall": 1.0,
+      "f1_score": 0.9783,
+      "support": 45
+    },
+    "OCCLUSION_UNCERTAIN": {
+      "TP": 33,
+      "FP": 0,
+      "FN": 2,
+      "precision": 1.0,
+      "recall": 0.9429,
+      "f1_score": 0.9706,
+      "support": 35
+    },
+    "STUDENT_ABSENT": {
+      "TP": 29,
+      "FP": 3,
+      "FN": 0,
+      "precision": 0.9062,
+      "recall": 1.0,
+      "f1_score": 0.9508,
+      "support": 29
+    },
+    "CAMERA_ERROR": {
+      "TP": 50,
+      "FP": 3,
+      "FN": 0,
+      "precision": 0.9434,
+      "recall": 1.0,
+      "f1_score": 0.9709,
+      "support": 50
+    },
+    "LOW_VISIBILITY": {
+      "TP": 67,
+      "FP": 0,
+      "FN": 3,
+      "precision": 1.0,
+      "recall": 0.9571,
+      "f1_score": 0.9781,
+      "support": 70
+    },
+    "RECOVERING": {
+      "TP": 28,
+      "FP": 10,
+      "FN": 8,
+      "precision": 0.7368,
+      "recall": 0.7778,
+      "f1_score": 0.7568,
+      "support": 36
+    }
+  },
+  "false_alarms_per_hour": 0.0,
+  "total_study_hours_evaluated": 0.016,
+  "average_detection_latencies_sec": {
+    "DISTRACTED": 0.1,
+    "INACTIVITY_WARNING": 0.0,
+    "STUDENT_ABSENT": 0.1,
+    "FACE_OCCLUDED": 0.0,
+    "POSSIBLE_DROWSINESS": 0.0
+  },
+  "average_recovery_latency_sec": 1.53,
+  "reading_vs_occlusion_breakdown": {
+    "ordinary_reading_samples": 200,
+    "ordinary_reading_accuracy": 0.985,
+    "reading_misclassified_as_occluded": 0,
+    "face_occlusion_samples": 45,
+    "face_occlusion_accuracy": 1.0,
+    "occlusion_misclassified_as_reading": 0
+  }
+}

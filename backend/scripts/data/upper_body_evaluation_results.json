@@ -1,0 +1,122 @@
+{
+  "split_evaluated": "test",
+  "total_test_sessions": 3,
+  "total_study_hours": 0.008,
+  "false_alarms_per_hour": 360.0,
+  "per_class_metrics": {
+    "STUDYING_SCREEN": {
+      "TP": 223,
+      "FP": 63,
+      "FN": 77,
+      "precision": 0.7797,
+      "recall": 0.7433,
+      "f1_score": 0.7611,
+      "support": 300
+    },
+    "STUDYING_READING_WRITING": {
+      "TP": 0,
+      "FP": 38,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "support": 0
+    },
+    "POSSIBLE_DISTRACTION": {
+      "TP": 219,
+      "FP": 3,
+      "FN": 121,
+      "precision": 0.9865,
+      "recall": 0.6441,
+      "f1_score": 0.7794,
+      "support": 340
+    },
+    "ACTIVITY_UNCONFIRMED": {
+      "TP": 0,
+      "FP": 139,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "support": 0
+    },
+    "FACE_PARTIALLY_OCCLUDED": {
+      "TP": 0,
+      "FP": 35,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "support": 0
+    },
+    "FACE_FULLY_OCCLUDED": {
+      "TP": 25,
+      "FP": 3,
+      "FN": 35,
+      "precision": 0.8929,
+      "recall": 0.4167,
+      "f1_score": 0.5682,
+      "support": 60
+    },
+    "POSSIBLE_DROWSINESS": {
+      "TP": 46,
+      "FP": 2,
+      "FN": 14,
+      "precision": 0.9583,
+      "recall": 0.7667,
+      "f1_score": 0.8519,
+      "support": 60
+    },
+    "STUDENT_ABSENT": {
+      "TP": 39,
+      "FP": 0,
+      "FN": 61,
+      "precision": 1.0,
+      "recall": 0.39,
+      "f1_score": 0.5612,
+      "support": 100
+    },
+    "CAMERA_ERROR": {
+      "TP": 60,
+      "FP": 2,
+      "FN": 0,
+      "precision": 0.9677,
+      "recall": 1.0,
+      "f1_score": 0.9836,
+      "support": 60
+    },
+    "LOW_VISIBILITY": {
+      "TP": 78,
+      "FP": 0,
+      "FN": 2,
+      "precision": 1.0,
+      "recall": 0.975,
+      "f1_score": 0.9873,
+      "support": 80
+    },
+    "RECOVERING": {
+      "TP": 0,
+      "FP": 25,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "support": 0
+    }
+  },
+  "average_detection_latencies_sec": {
+    "POSSIBLE_DISTRACTION": 4.13,
+    "POSSIBLE_DROWSINESS": 1.5,
+    "FACE_FULLY_OCCLUDED": 3.6,
+    "STUDENT_ABSENT": 6.2,
+    "CAMERA_ERROR": 0.1,
+    "LOW_VISIBILITY": 0.3
+  },
+  "reading_vs_occlusion": {
+    "reading_samples": 0,
+    "reading_accuracy": 1.0,
+    "reading_misclassified_as_occluded": 0,
+    "face_occlusion_samples": 60,
+    "face_occlusion_accuracy": 0.4167
+  }
+}

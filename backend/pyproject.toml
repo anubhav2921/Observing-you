@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-study-focus-monitor-backend"
+version = "2.0.0"
+description = "Real-time AI Upper-Body Study Focus, Posture & Fatigue Recognition Backend"
+authors = [{ name = "AI Study Monitor Team" }]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.28.0",
+    "websockets>=12.0",
+    "pydantic>=2.6.0",
+    "opencv-python>=4.9.0",
+    "numpy>=1.24.0",
+    "mediapipe>=0.10.9",
+    "ultralytics>=8.1.0",
+    "torch>=2.0.0",
+    "pygame>=2.5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["backend*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
