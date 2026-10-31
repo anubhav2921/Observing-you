@@ -12,6 +12,18 @@ import { CameraManager } from "./utils/camera_manager.js";
 import { MonitorWebSocketClient } from "./services/websocket_client.js";
 import { BrowserAudioController } from "./utils/audio_controller.js";
 
+// Canonical facial landmark drawing indices matching visual reference
+const FACE_OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10];
+const LIPS_OUTER = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61];
+const LIPS_INNER = [78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308, 415, 310, 311, 312, 13, 82, 81, 80, 191, 78];
+const LEFT_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246, 33];
+const LEFT_EYEBROW = [70, 63, 105, 66, 107, 55, 65, 52, 53, 46];
+const RIGHT_EYE = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398, 362];
+const RIGHT_EYEBROW = [300, 293, 334, 296, 336, 285, 295, 282, 283, 276];
+const LEFT_IRIS = [469, 470, 471, 472, 469];
+const RIGHT_IRIS = [474, 475, 476, 477, 474];
+const POSE_PAIRS = [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24]];
+
 export class StudyMonitorApp {
   constructor() {
     // 1. DOM Elements
@@ -36,6 +48,8 @@ export class StudyMonitorApp {
     this.stopBtn = document.getElementById("stop-btn");
     this.audioToggleBtn = document.getElementById("audio-toggle-btn");
     this.audioBadge = document.getElementById("audio-badge");
+    this.overlayToggleBtn = document.getElementById("overlay-toggle-btn");
+    this.overlayBadge = document.getElementById("overlay-badge");
 
     // Current Activity Elements
     this.activityHeroBox = document.getElementById("activity-hero-box");
@@ -56,6 +70,7 @@ export class StudyMonitorApp {
 
     // Ephemeral In-Memory State
     this.isMonitoring = false;
+    this.showDebugOverlay = true;
     this.frameIntervalTimer = null;
     this.targetFps = 10;
     this.frameIntervalMs = 1000 / this.targetFps;
@@ -72,6 +87,7 @@ export class StudyMonitorApp {
     this.startBtn?.addEventListener("click", () => this.handleStartMonitoring());
     this.stopBtn?.addEventListener("click", () => this.handleStopMonitoring());
     this.audioToggleBtn?.addEventListener("click", () => this.handleToggleAudio());
+    this.overlayToggleBtn?.addEventListener("click", () => this.handleToggleOverlay());
   }
 
   initWebSocketCallbacks() {
@@ -182,6 +198,17 @@ export class StudyMonitorApp {
     if (this.audioBadge) {
       this.audioBadge.textContent = isEnabled ? "ON" : "OFF";
       this.audioBadge.className = isEnabled ? "badge-pill-on" : "badge-pill-off";
+    }
+  }
+
+  handleToggleOverlay() {
+    this.showDebugOverlay = !this.showDebugOverlay;
+    if (this.overlayBadge) {
+      this.overlayBadge.textContent = this.showDebugOverlay ? "ON" : "OFF";
+      this.overlayBadge.className = this.showDebugOverlay ? "badge-pill-on" : "badge-pill-off";
+    }
+    if (!this.showDebugOverlay) {
+      this.clearHudCanvas();
     }
   }
 
@@ -316,7 +343,79 @@ export class StudyMonitorApp {
 
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Draw Person Bounding Box if detected and face not yet isolated
+    // If overlay is disabled, skip all drawing
+    if (!this.showDebugOverlay) return;
+
+    // 1. Draw Detailed Face Mesh & Contours if landmarks provided (Matching Visual Reference)
+    if (obs.face_landmarks && Array.isArray(obs.face_landmarks) && obs.face_landmarks.length >= 468) {
+      const flm = obs.face_landmarks;
+      const getPt = (idx) => [flm[idx][0] * w, flm[idx][1] * h];
+
+      const drawPath = (indices, strokeColor, lineWidth, close = false) => {
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        for (let i = 0; i < indices.length; i++) {
+          if (indices[i] >= flm.length) continue;
+          const pt = getPt(indices[i]);
+          if (i === 0) ctx.moveTo(pt[0], pt[1]);
+          else ctx.lineTo(pt[0], pt[1]);
+        }
+        if (close) ctx.closePath();
+        ctx.stroke();
+      };
+
+      ctx.save();
+      // Face Oval (smooth white)
+      drawPath(FACE_OVAL, "#f8fafc", 2, false);
+      // Lips (smooth white)
+      drawPath(LIPS_OUTER, "#f8fafc", 2, true);
+      drawPath(LIPS_INNER, "#f8fafc", 1.5, true);
+
+      // Left eye & eyebrow (vivid green)
+      drawPath(LEFT_EYE, "#10b981", 2, true);
+      drawPath(LEFT_EYEBROW, "#10b981", 2, false);
+
+      // Right eye & eyebrow (vivid red)
+      drawPath(RIGHT_EYE, "#ef4444", 2, true);
+      drawPath(RIGHT_EYEBROW, "#ef4444", 2, false);
+
+      // Iris diamonds
+      if (flm.length >= 478) {
+        drawPath(LEFT_IRIS, "#10b981", 2, true);
+        drawPath(RIGHT_IRIS, "#ef4444", 2, true);
+        const lPupil = getPt(468);
+        const rPupil = getPt(473);
+        ctx.fillStyle = "#10b981";
+        ctx.beginPath();
+        ctx.arc(lPupil[0], lPupil[1], 2.5, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = "#ef4444";
+        ctx.beginPath();
+        ctx.arc(rPupil[0], rPupil[1], 2.5, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // 2. Draw Pose Skeleton (Cyan lines) if landmarks provided
+    if (obs.pose_landmarks && Array.isArray(obs.pose_landmarks) && obs.pose_landmarks.length >= 25) {
+      const plm = obs.pose_landmarks;
+      ctx.save();
+      ctx.strokeStyle = "#00e5ff";
+      ctx.lineWidth = 2.5;
+      for (const [i1, i2] of POSE_PAIRS) {
+        if (i1 < plm.length && i2 < plm.length) {
+          ctx.beginPath();
+          ctx.moveTo(plm[i1][0] * w, plm[i1][1] * h);
+          ctx.lineTo(plm[i2][0] * w, plm[i2][1] * h);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    // 3. Draw Person Bounding Box if detected and face not yet isolated
     if (obs.person_box && Array.isArray(obs.person_box) && obs.person_box.length === 4) {
       const [px1, py1, px2, py2] = obs.person_box;
       const pbw = px2 - px1;
@@ -339,7 +438,7 @@ export class StudyMonitorApp {
       }
     }
 
-    // 2. Draw Face Bounding Box if detected
+    // 4. Draw Face Bounding Box if detected
     if (obs.face_box && Array.isArray(obs.face_box) && obs.face_box.length === 4) {
       const [x1, y1, x2, y2] = obs.face_box;
       const bw = x2 - x1;
@@ -385,7 +484,7 @@ export class StudyMonitorApp {
       ctx.restore();
     }
 
-    // 3. Draw Mobile Phone Bounding Box if detected
+    // 5. Draw Mobile Phone Bounding Box if detected
     if (obs.phone_present && obs.phone_box && Array.isArray(obs.phone_box) && obs.phone_box.length === 4) {
       const [phx1, phy1, phx2, phy2] = obs.phone_box;
       const phw = phx2 - phx1;

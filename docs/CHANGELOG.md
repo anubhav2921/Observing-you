@@ -2,6 +2,33 @@
 
 This document maintains a chronological record of all architectural updates, bug fixes, features, and test outcomes.
 
+## [2.7.0] — 2026-10-31
+
+### Added & Improved
+- **Full Visual Debug Landmark Overlay (Matching Visual Reference `media_1793466279822_e3417f17.jpg`):**
+  - Rendered dense 468-point face mesh Delaunay wireframe in clean grey lines.
+  - Color-coded left eye and eyebrow in vivid emerald green (`#10b981`).
+  - Color-coded right eye and eyebrow in vivid red (`#ef4444`).
+  - Added left iris green diamond and right iris red diamond with pupil center dots.
+  - Rendered face oval perimeter and inner/outer lips in smooth crisp white (`#f8fafc`).
+  - Added upper-body pose skeleton (cyan lines) connecting shoulders, elbows, wrists, and hips.
+  - Added hand skeletons (yellow lines) tracking finger joints and fingertips.
+  - Added dynamic Debug Overlay toggle (`ON` / `OFF`) in both the Web UI and native OpenCV window (`'d'` / `'D'` key).
+- **Downward Note-Taking vs False Drowsiness Resolution:**
+  - Implemented dynamic pitch foreshortening compensation ($\\text{EAR}_{\\text{comp}}$): looking down writing or reading notes expands effective eye aspect ratio, preventing depressed 2D eyelid projections from triggering false sleep alerts.
+  - Integrated iris tracking: physical tracking of pupils/irises provides ground-truth proof that eyes are open, preventing drowsiness triggers during note-taking.
+  - Added independent 5-state eye tracking (`EYES_OPEN`, `EYES_PARTIALLY_CLOSED`, `BLINK`, `EYES_CLOSED`, `EYE_STATE_UNKNOWN`) for left and right eyes.
+- **Fast Phone Detection & Spatial Hand Overlap:**
+  - Added class-specific YOLO thresholds (`YOLO_CONF_PERSON = 0.40`, `YOLO_CONF_PHONE = 0.28`, `YOLO_CONF_BOOK = 0.35`, `YOLO_CONF_LAPTOP = 0.38`).
+  - Stored `phone_box`, `phone_conf`, `person_box`, `book_box` across YOLO inference strides.
+  - Verified hand-phone spatial overlap and gaze direction for rapid 0.6s phone distraction confirmation.
+- **Rapid Student Absence & Frame-1 Return Recovery:**
+  - Decreased absence confirmation window to 3.0s (`STUDENT_ABSENT_SECS = 3.0`).
+  - Implemented instant frame-1 recovery upon student reappearance.
+- **Automated Verification:**
+  - 94/94 automated tests passing (100% test suite success).
+  - Clean Vite frontend production build with zero warnings or errors.
+
 ## [2.6.1] - 2026-10-31
 
 ### Fixed

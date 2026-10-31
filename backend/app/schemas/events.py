@@ -50,6 +50,12 @@ class ObservationData(BaseModel):
     face_box: Optional[List[int]] = None
     person_box: Optional[List[int]] = None
     phone_box: Optional[List[int]] = None
+    left_eye_state: str = "OPEN"
+    right_eye_state: str = "OPEN"
+    iris_visible: bool = False
+    tracking_quality: float = 1.0
+    face_landmarks: Optional[List[List[float]]] = None
+    pose_landmarks: Optional[List[List[float]]] = None
     focus_level: float = 0.85
     attention_level: float = 0.80
     distraction_level: float = 0.10

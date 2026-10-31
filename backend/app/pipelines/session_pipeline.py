@@ -215,6 +215,19 @@ class SessionPipeline:
             p_box = list(features.person_box) if (features and getattr(features, "person_box", None)) else None
             ph_box = list(features.phone_box) if (features and getattr(features, "phone_box", None)) else None
 
+            l_eye_st = features.left_eye_state.name if (features and hasattr(features.left_eye_state, "name")) else "OPEN"
+            r_eye_st = features.right_eye_state.name if (features and hasattr(features.right_eye_state, "name")) else "OPEN"
+            iris_vis = getattr(features, "iris_visible", False) if features else False
+            track_qual = getattr(features, "tracking_quality", 1.0) if features else 1.0
+
+            raw_flm = None
+            if features and getattr(features, "face_landmarks_raw", None):
+                raw_flm = [[round(p[0], 4), round(p[1], 4)] for p in features.face_landmarks_raw]
+
+            raw_plm = None
+            if features and getattr(features, "pose_landmarks_raw", None):
+                raw_plm = [[round(p[0], 4), round(p[1], 4)] for p in features.pose_landmarks_raw]
+
             obs_data = ObservationData(
                 face_present=bool(obs.face_present.value) if hasattr(obs, "face_present") and hasattr(obs.face_present, "value") else False,
                 face_occluded=bool(obs.face_occluded.value) if hasattr(obs, "face_occluded") and hasattr(obs.face_occluded, "value") else False,
@@ -239,6 +252,12 @@ class SessionPipeline:
                 face_box=f_box,
                 person_box=p_box,
                 phone_box=ph_box,
+                left_eye_state=l_eye_st,
+                right_eye_state=r_eye_st,
+                iris_visible=iris_vis,
+                tracking_quality=track_qual,
+                face_landmarks=raw_flm,
+                pose_landmarks=raw_plm,
                 focus_level=focus_lvl,
                 attention_level=atten_lvl,
                 distraction_level=distract_lvl,

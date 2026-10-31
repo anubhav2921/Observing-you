@@ -191,6 +191,10 @@ def main() -> None:
             if key == ord('q') or key == ord('Q') or key == 27:
                 print("\n[Local Mode] Stop requested by user.")
                 break
+            elif key == ord('d') or key == ord('D'):
+                config.SHOW_DEBUG_OVERLAY = not getattr(config, "SHOW_DEBUG_OVERLAY", True)
+                config.SHOW_LANDMARKS = getattr(config, "SHOW_DEBUG_OVERLAY", True)
+                print(f"[Local Mode] Debug Landmark Overlay: {'ENABLED' if config.SHOW_DEBUG_OVERLAY else 'DISABLED'}")
 
     except Exception as e:
         print(f"\n[Local Mode] Unexpected runtime exception: {e}")

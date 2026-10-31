@@ -270,6 +270,9 @@ class UpperBodyDetector:
         face_detected = False
         face_conf = 0.0
         face_box: Optional[Tuple[int, int, int, int]] = None
+        face_landmarks_raw: Optional[List[Tuple[float, float, float]]] = None
+        pose_landmarks_raw: Optional[List[Tuple[float, float, float]]] = None
+        hand_landmarks_raw: Optional[List[List[Tuple[float, float, float]]]] = None
         landmark_vis_ratio = 0.0
         landmark_validity = False
         head_yaw: Optional[float] = None
@@ -279,6 +282,9 @@ class UpperBodyDetector:
         left_ear: Optional[float] = None
         right_ear: Optional[float] = None
         blink_score: Optional[float] = None
+        b_left: Optional[float] = None
+        b_right: Optional[float] = None
+        iris_visible: bool = False
         mar: Optional[float] = None
         yawn_detected: bool = False
         gaze_h: Optional[float] = None
@@ -313,6 +319,7 @@ class UpperBodyDetector:
                     face_detected = True
                     face_conf = 0.92
                     lm = face_res.face_landmarks[0]
+                    face_landmarks_raw = [(p.x, p.y, getattr(p, "z", 0.0)) for p in lm]
                     landmark_vis_ratio = 1.0  # Dense mesh detected
 
                     xs = [p.x * w for p in lm]
@@ -373,9 +380,13 @@ class UpperBodyDetector:
                         if mar > 0.48:
                             yawn_detected = True
 
-                    # Gaze estimation via pupil/iris relative position
+                    # Gaze estimation via pupil/iris relative position & iris visibility
                     if len(lm) >= 478:
                         left_pupil = lm[468]
+                        right_pupil = lm[473]
+                        if (0.0 <= left_pupil.x <= 1.0 and 0.0 <= left_pupil.y <= 1.0 and
+                            0.0 <= right_pupil.x <= 1.0 and 0.0 <= right_pupil.y <= 1.0):
+                            iris_visible = True
                         eye_l_inner = lm[133]
                         eye_l_outer = lm[33]
                         eye_width = max(1e-5, abs(eye_l_inner.x - eye_l_outer.x))
@@ -403,6 +414,7 @@ class UpperBodyDetector:
                 pose_res = self._pose_landmarker.detect(mp_img)
                 if pose_res.pose_landmarks:
                     p_lm = pose_res.pose_landmarks[0]
+                    pose_landmarks_raw = [(p.x, p.y, getattr(p, "z", 0.0)) for p in p_lm]
                     # Landmark 11 = Left shoulder, 12 = Right shoulder
                     ls = p_lm[11]
                     rs = p_lm[12]
@@ -441,6 +453,7 @@ class UpperBodyDetector:
                 hand_res = self._hand_landmarker.detect(mp_img)
                 if hand_res.hand_landmarks:
                     hands_visible_count = len(hand_res.hand_landmarks)
+                    hand_landmarks_raw = [[(p.x, p.y, getattr(p, "z", 0.0)) for p in h_lm] for h_lm in hand_res.hand_landmarks]
                     for h_lm in hand_res.hand_landmarks:
                         h_ys = [p.y * h for p in h_lm]
                         h_xs = [p.x * w for p in h_lm]
@@ -506,34 +519,77 @@ class UpperBodyDetector:
             elif head_roll is not None and abs(head_roll) > 15.0:
                 head_dir = HeadDirection.TILTED_SIDEWAYS
 
-        # Eye state (missing/obscured landmarks are UNKNOWN, not closed)
+        # Eye states (independent left, right, and combined)
         # Account for head pitch foreshortening, calibrated open EAR, and MediaPipe blendshapes
-        eye_state = EyeState.UNKNOWN
+        left_eye_state = EyeState.EYE_STATE_UNKNOWN
+        right_eye_state = EyeState.EYE_STATE_UNKNOWN
+        eye_state = EyeState.EYE_STATE_UNKNOWN
+
         if landmark_validity and face_detected and ear is not None:
-            # Check if hand directly obscures eye region
-            if hand_near_eyes and hand_to_face_iou > 0.25:
-                eye_state = EyeState.UNKNOWN
+            # Check if hand directly obscures eye region or head pitch is extreme
+            if (hand_near_eyes and hand_to_face_iou > 0.25) or (head_pitch is not None and head_pitch > 42.0):
+                left_eye_state = EyeState.EYE_STATE_UNKNOWN
+                right_eye_state = EyeState.EYE_STATE_UNKNOWN
+                eye_state = EyeState.EYE_STATE_UNKNOWN
             else:
                 base_ear = self._calibrated_ear or self._baseline_open_ear
                 # Pitch foreshortening compensation: looking down tilts eye plane
                 pitch_comp = 0.0
                 if head_pitch is not None and head_pitch > 8.0:
-                    pitch_comp = max(0.0, min(0.08, (head_pitch - 8.0) * 0.003))
+                    pitch_comp = max(0.0, min(0.08, (head_pitch - 8.0) * 0.0035))
 
                 close_threshold = max(config.EAR_CLOSE_THRESHOLD, (base_ear * 0.65) - pitch_comp)
+                partial_threshold = close_threshold + 0.04
 
-                if blink_score is not None:
-                    # MediaPipe 3D Neural Blendshapes: blink probability [0.0, 1.0]
-                    if blink_score >= getattr(config, "BLINK_BLENDSHAPE_THRESHOLD", 0.58):
-                        eye_state = EyeState.EYES_CLOSED
-                    elif blink_score <= 0.35:
-                        eye_state = EyeState.EYES_OPEN
+                cur_l_ear = left_ear if left_ear is not None else ear
+                cur_r_ear = right_ear if right_ear is not None else ear
+
+                # Left eye evaluation
+                if b_left is not None:
+                    if b_left >= getattr(config, "BLINK_BLENDSHAPE_THRESHOLD", 0.58):
+                        left_eye_state = EyeState.EYES_CLOSED
+                    elif b_left >= 0.35 or cur_l_ear < partial_threshold:
+                        left_eye_state = EyeState.EYES_PARTIALLY_CLOSED
                     else:
-                        # Ambiguous blendshape: consult pitch-compensated EAR
-                        eye_state = EyeState.EYES_CLOSED if ear < close_threshold else EyeState.EYES_OPEN
+                        left_eye_state = EyeState.EYES_OPEN
                 else:
-                    # Fallback to calibrated EAR
-                    eye_state = EyeState.EYES_CLOSED if ear < close_threshold else EyeState.EYES_OPEN
+                    if cur_l_ear < close_threshold:
+                        left_eye_state = EyeState.EYES_CLOSED
+                    elif cur_l_ear < partial_threshold:
+                        left_eye_state = EyeState.EYES_PARTIALLY_CLOSED
+                    else:
+                        left_eye_state = EyeState.EYES_OPEN
+
+                # Right eye evaluation
+                if b_right is not None:
+                    if b_right >= getattr(config, "BLINK_BLENDSHAPE_THRESHOLD", 0.58):
+                        right_eye_state = EyeState.EYES_CLOSED
+                    elif b_right >= 0.35 or cur_r_ear < partial_threshold:
+                        right_eye_state = EyeState.EYES_PARTIALLY_CLOSED
+                    else:
+                        right_eye_state = EyeState.EYES_OPEN
+                else:
+                    if cur_r_ear < close_threshold:
+                        right_eye_state = EyeState.EYES_CLOSED
+                    elif cur_r_ear < partial_threshold:
+                        right_eye_state = EyeState.EYES_PARTIALLY_CLOSED
+                    else:
+                        right_eye_state = EyeState.EYES_OPEN
+
+                # Iris presence override: looking down writing/reading with pupils visible cannot be sleeping
+                if iris_visible and head_pitch is not None and head_pitch > 8.0:
+                    if left_eye_state == EyeState.EYES_CLOSED and cur_l_ear >= 0.13:
+                        left_eye_state = EyeState.EYES_PARTIALLY_CLOSED
+                    if right_eye_state == EyeState.EYES_CLOSED and cur_r_ear >= 0.13:
+                        right_eye_state = EyeState.EYES_PARTIALLY_CLOSED
+
+                # Combined eye state
+                if left_eye_state == EyeState.EYES_CLOSED and right_eye_state == EyeState.EYES_CLOSED:
+                    eye_state = EyeState.EYES_CLOSED
+                elif left_eye_state in (EyeState.EYES_CLOSED, EyeState.EYES_PARTIALLY_CLOSED) or right_eye_state in (EyeState.EYES_CLOSED, EyeState.EYES_PARTIALLY_CLOSED):
+                    eye_state = EyeState.EYES_PARTIALLY_CLOSED
+                else:
+                    eye_state = EyeState.EYES_OPEN
 
         # Shoulder posture
         shoulder_posture = ShoulderPosture.UNKNOWN
@@ -865,6 +921,20 @@ class UpperBodyDetector:
             ),
         )
 
+        tracking_quality = 1.0
+        if not face_detected:
+            tracking_quality = 0.0
+        else:
+            if low_visibility:
+                tracking_quality *= 0.7
+            if head_yaw is not None and abs(head_yaw) > 30.0:
+                tracking_quality *= 0.8
+            if head_pitch is not None and (head_pitch > 35.0 or head_pitch < -20.0):
+                tracking_quality *= 0.8
+            if not landmark_validity:
+                tracking_quality *= 0.5
+        tracking_quality = round(max(0.0, min(1.0, tracking_quality)), 2)
+
         return UpperBodyFeatures(
             timestamp=now,
             camera_valid=(not inference_error and cam_health_val != "DISCONNECTED"),
@@ -884,6 +954,13 @@ class UpperBodyDetector:
             ear=ear,
             left_ear=left_ear,
             right_ear=right_ear,
+            left_eye_state=left_eye_state,
+            right_eye_state=right_eye_state,
+            iris_visible=iris_visible,
+            tracking_quality=tracking_quality,
+            face_landmarks_raw=face_landmarks_raw,
+            pose_landmarks_raw=pose_landmarks_raw,
+            hand_landmarks_raw=hand_landmarks_raw,
             blink_score=blink_score,
             eye_closure_duration=eye_closure_duration,
             drowsiness_evidence=drowsiness_evidence,

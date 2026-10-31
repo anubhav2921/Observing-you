@@ -41,8 +41,12 @@ HAND_LANDMARKER_MODEL: str = str(MODELS_DIR / "hand_landmarker.task") if (MODELS
 # ──────────────────────────────────────────────
 #  YOLO & Object Detection Thresholds
 # ──────────────────────────────────────────────
-YOLO_CONF_THRESHOLD: float = 0.40
-YOLO_CONF: float = 0.40
+YOLO_CONF_THRESHOLD: float = 0.25
+YOLO_CONF: float = 0.25
+YOLO_CONF_PERSON: float = 0.40
+YOLO_CONF_PHONE: float = 0.28   # Sensitive phone detection for fast pickup response
+YOLO_CONF_BOOK: float = 0.35
+YOLO_CONF_LAPTOP: float = 0.38
 YOLO_IOU_THRESHOLD: float = 0.45
 YOLO_INFERENCE_STRIDE: int = 1  # 1 = every frame, >1 = cached strides
 
@@ -55,8 +59,8 @@ COCO_LAPTOP: int = 63
 # ──────────────────────────────────────────────
 #  Focus-state durations & thresholds (in seconds)
 # ──────────────────────────────────────────────
-# 1. Student absence: No person detected in frame
-STUDENT_ABSENT_SECS: float = 6.0
+# 1. Student absence: No person detected in frame (fast 3.0s confirmation)
+STUDENT_ABSENT_SECS: float = 3.0
 
 # 2. Face occlusion: Person present, face deliberately covered/obscured
 FACE_OCCLUDED_SECS: float = 3.5
@@ -77,9 +81,9 @@ INACTIVITY_WARNING_SECS: float = 12.0
 MOTION_STILL_THRESHOLD: float = 0.006
 
 # 6. Phone distraction & Active usage policy:
-PHONE_VISIBLE_SECS: float = 2.5            # Mere phone visible on desk without handling
-PHONE_ACTIVE_USAGE_SECS: float = 0.8       # Fast 0.5–1.0s trigger when actively handled / gaze directed
-PHONE_DETECT_SECS: float = 0.8             # Standard active phone confirmation
+PHONE_VISIBLE_SECS: float = 2.0            # Mere phone visible on desk without handling
+PHONE_ACTIVE_USAGE_SECS: float = 0.6       # Fast 0.5–1.0s trigger when actively handled / gaze directed
+PHONE_DETECT_SECS: float = 0.6             # Standard active phone confirmation
 HEAD_TURN_ROOM_SCAN_YAW_DEG: float = 30.0  # Clear room scan yaw swing (not monitor glance)
 
 # 7. Sleepiness & Drowsiness & Eye Calibration:

@@ -1,8 +1,8 @@
 # Live Project Status (CURRENT_STATUS) — AI Study Focus Monitor
 
-*Last Updated:* 2026-10-31T17:15:00+05:30  
-*Project Version:* 2.6.1  
-*Current Development Phase:* Detection Accuracy Overhaul & Simplified Dashboard Complete
+*Last Updated:* 2026-10-31T17:35:00+05:30  
+*Project Version:* 2.7.0  
+*Current Development Phase:* Complete Detection Accuracy & Computer Vision Overhaul (v2.7.0)
 
 ---
 
@@ -57,7 +57,14 @@
 ---
 
 ## 5. Latest Completed Task
-Completed Complete AI Study Focus Monitor Accuracy Overhaul across all 10 execution phases: safe diagnostic mode, MediaPipe 3D blendshapes eye blink integration, pitch-compensated EAR, natural blink vs sustained closure separation, distraction yaw threshold refinement, non-disruptive study switching, category-specific recovery, audio alert gating & deduplication, real-time diagnostic HUD overlay, and 82/82 automated tests passing (including 11 new accuracy audit tests covering TEST A through TEST K).
+Completed Master Computer Vision & Detection Accuracy Overhaul (v2.7.0):
+1. Visual Debug Overlay matching reference image (media_1793466279822_e3417f17.jpg) with face mesh wireframe in grey, left eye & eyebrow in emerald green, right eye & eyebrow in red, iris diamonds with pupil centers, lips and face oval in white, body pose skeleton in cyan, and hand skeletons in yellow.
+2. Debug Overlay toggle button in Web Dashboard and keyboard toggle ('d'/'D') in OpenCV local Mode A.
+3. Pitch foreshortening compensation and iris pupil verification eliminating false drowsiness triggers when looking down writing or reading notes.
+4. Independent 5-state eye tracking (EYES_OPEN, EYES_PARTIALLY_CLOSED, BLINK, EYES_CLOSED, EYE_STATE_UNKNOWN).
+5. Class-specific YOLO thresholds (conf 0.28 for phone) with spatial hand overlap and rapid 0.6s phone distraction confirmation.
+6. Reduced student absence confirmation to 3.0s with frame-1 instant return recovery.
+7. 94/94 automated tests passing (100% test suite success) and clean Vite frontend build.
 
 ---
 

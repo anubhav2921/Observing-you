@@ -71,14 +71,17 @@ class ConfirmationStatus(Enum):
 
 
 class EyeState(Enum):
-    EYES_OPEN          = auto()
-    BLINK              = auto()
-    EYES_CLOSED        = auto()
-    EYE_STATE_UNKNOWN  = auto()
+    EYES_OPEN             = auto()
+    EYES_PARTIALLY_CLOSED = auto()
+    BLINK                 = auto()
+    EYES_CLOSED           = auto()
+    EYE_STATE_UNKNOWN     = auto()
 
     # Backward compatibility aliases
-    BLINKING           = BLINK
-    UNKNOWN            = EYE_STATE_UNKNOWN
+    OPEN                  = EYES_OPEN
+    CLOSED                = EYES_CLOSED
+    BLINKING              = BLINK
+    UNKNOWN               = EYE_STATE_UNKNOWN
 
 
 class ShoulderPosture(Enum):
@@ -259,6 +262,10 @@ class UpperBodyFeatures:
     ear: Optional[float] = None             # Eye Aspect Ratio (None if occluded)
     left_ear: Optional[float] = None        # Left eye aspect ratio
     right_ear: Optional[float] = None       # Right eye aspect ratio
+    left_eye_state: EyeState = EyeState.EYE_STATE_UNKNOWN
+    right_eye_state: EyeState = EyeState.EYE_STATE_UNKNOWN
+    iris_visible: bool = False              # Iris landmarks detected & tracked
+    tracking_quality: float = 1.0           # Overall tracking reliability (0.0 to 1.0)
     blink_score: Optional[float] = None     # Blendshape blink probability (0.0=open, 1.0=shut)
     eye_closure_duration: float = 0.0       # Elapsed seconds of continuous closure
     drowsiness_evidence: str = "none"       # Description of validated drowsiness evidence
@@ -267,6 +274,11 @@ class UpperBodyFeatures:
     yawn_detected: bool = False             # Instantaneous yawn candidate
     gaze_horizontal: Optional[float] = None # Normalized pupil position (-1 = left, 1 = right)
     gaze_vertical: Optional[float] = None   # Normalized pupil position (-1 = up, 1 = down)
+
+    # Raw Landmarks for Development Debug Overlay
+    face_landmarks_raw: Optional[Any] = None
+    pose_landmarks_raw: Optional[Any] = None
+    hand_landmarks_raw: Optional[Any] = None
 
     # Shoulders & Upper Torso (Camera Constraint: head, neck, shoulders, chest)
     shoulders_detected: bool = False

@@ -449,8 +449,9 @@ class TemporalDecisionEngine:
         instantaneous_eye_closed = (
             landmarks_valid
             and (
-                f.eye_state in (EyeState.EYES_CLOSED, EyeState.BLINK, EyeState.BLINKING)
-                or (f.ear is not None and f.ear < config.EAR_CLOSE_THRESHOLD and f.eye_state not in (EyeState.UNKNOWN, EyeState.EYE_STATE_UNKNOWN))
+                (f.left_eye_state == EyeState.EYES_CLOSED and f.right_eye_state == EyeState.EYES_CLOSED)
+                or (f.eye_state in (EyeState.EYES_CLOSED, EyeState.BLINK, EyeState.BLINKING) and not f.iris_visible)
+                or (f.ear is not None and f.ear < config.EAR_CLOSE_THRESHOLD and f.eye_state not in (EyeState.UNKNOWN, EyeState.EYE_STATE_UNKNOWN) and not f.iris_visible)
             )
         )
 

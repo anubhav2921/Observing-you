@@ -55,8 +55,14 @@ class YOLOService:
             "person_conf": 0.0,
             "person_box": None,
             "phone_detected": False,
+            "phone_conf": 0.0,
+            "phone_box": None,
             "book_detected": False,
+            "book_conf": 0.0,
+            "book_box": None,
             "laptop_detected": False,
+            "laptop_conf": 0.0,
+            "laptop_box": None,
         }
 
         if self.model is None or bgr_frame is None:
@@ -87,7 +93,7 @@ class YOLOService:
                     conf = float(box.conf[0].item())
                     coords = [int(v) for v in box.xyxy[0].tolist()]
 
-                    if cls_id == config.COCO_PERSON:
+                    if cls_id == config.COCO_PERSON and conf >= getattr(config, "YOLO_CONF_PERSON", 0.40):
                         area = (coords[2] - coords[0]) * (coords[3] - coords[1])
                         if area > max_person_area:
                             max_person_area = area
@@ -95,14 +101,20 @@ class YOLOService:
                             result_info["person_conf"] = conf
                             result_info["person_box"] = coords
 
-                    elif cls_id == config.COCO_CELL_PHONE:
+                    elif cls_id == config.COCO_CELL_PHONE and conf >= getattr(config, "YOLO_CONF_PHONE", 0.28):
                         result_info["phone_detected"] = True
+                        result_info["phone_conf"] = conf
+                        result_info["phone_box"] = coords
 
-                    elif cls_id == config.COCO_BOOK:
+                    elif cls_id == config.COCO_BOOK and conf >= getattr(config, "YOLO_CONF_BOOK", 0.35):
                         result_info["book_detected"] = True
+                        result_info["book_conf"] = conf
+                        result_info["book_box"] = coords
 
-                    elif cls_id == config.COCO_LAPTOP:
+                    elif cls_id == config.COCO_LAPTOP and conf >= getattr(config, "YOLO_CONF_LAPTOP", 0.38):
                         result_info["laptop_detected"] = True
+                        result_info["laptop_conf"] = conf
+                        result_info["laptop_box"] = coords
 
         except Exception as e:
             print(f"[YOLOService] Inference error: {e}")
