@@ -159,7 +159,12 @@ Emitted immediately upon processing each received frame. Serves as both data upd
     "posture_name": "UPRIGHT",
     "book_present": true,
     "phone_present": false,
-    "laptop_present": false
+    "laptop_present": false,
+    "face_box": [140, 110, 480, 460],
+    "focus_level": 94.0,
+    "attention_level": 90.0,
+    "distraction_level": 5.0,
+    "drowsiness_level": 6.0
   },
   "active_behaviors": [
     "STUDYING_READING_WRITING"

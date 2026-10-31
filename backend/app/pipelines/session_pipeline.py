@@ -171,6 +171,48 @@ class SessionPipeline:
                 else:
                     hand_nf = bool(val)
 
+            # Compute real-time derived telemetry metrics from actual signals
+            focus_lvl = 0.85
+            distract_lvl = 0.05
+            drowsy_lvl = 0.05
+            if state in (StudyState.STUDYING, StudyState.STUDYING_READING, StudyState.STUDYING_WRITING):
+                focus_lvl = round(max(0.70, min(0.98, confidence)), 2)
+                distract_lvl = 0.05
+                drowsy_lvl = 0.05
+            elif state == StudyState.RECOVERING:
+                focus_lvl = 0.65
+                distract_lvl = 0.20
+                drowsy_lvl = 0.10
+            elif state == StudyState.LOOKING_AWAY:
+                focus_lvl = 0.35
+                distract_lvl = 0.65
+                drowsy_lvl = 0.10
+            elif state == StudyState.DISTRACTED:
+                focus_lvl = 0.15
+                distract_lvl = 0.85
+                drowsy_lvl = 0.05
+            elif state == StudyState.POSSIBLE_DROWSINESS:
+                focus_lvl = 0.15
+                distract_lvl = 0.10
+                drowsy_lvl = 0.85
+            elif state in (StudyState.STUDENT_ABSENT, StudyState.FACE_OCCLUDED):
+                focus_lvl = 0.0
+                distract_lvl = 0.75
+                drowsy_lvl = 0.0
+            elif state == StudyState.INACTIVITY_WARNING:
+                focus_lvl = 0.38
+                distract_lvl = 0.60
+                drowsy_lvl = 0.25
+
+            atten_lvl = focus_lvl
+            if features and features.ear is not None and features.head_yaw is not None and features.head_pitch is not None:
+                yaw_pen = min(0.45, abs(features.head_yaw) / 50.0)
+                pitch_pen = min(0.40, abs(features.head_pitch) / 60.0)
+                ear_fac = min(1.0, max(0.2, features.ear / 0.26))
+                atten_lvl = round(max(0.05, min(1.0, (1.0 - yaw_pen - pitch_pen) * ear_fac)), 2)
+
+            f_box = list(features.face_box) if (features and features.face_box) else None
+
             obs_data = ObservationData(
                 face_present=bool(obs.face_present.value) if hasattr(obs, "face_present") and hasattr(obs.face_present, "value") else False,
                 face_occluded=bool(obs.face_occluded.value) if hasattr(obs, "face_occluded") and hasattr(obs.face_occluded, "value") else False,
@@ -192,6 +234,11 @@ class SessionPipeline:
                 phone_status=decision.phone_status.name if decision and hasattr(decision, "phone_status") else "NONE",
                 behavior_category=decision.behavior_category.name if decision and hasattr(decision, "behavior_category") else "PRODUCTIVE_STUDYING",
                 laptop_present=getattr(features, "laptop_detected", False) if features else False,
+                face_box=f_box,
+                focus_level=focus_lvl,
+                attention_level=atten_lvl,
+                distraction_level=distract_lvl,
+                drowsiness_level=drowsy_lvl,
             )
 
         # Active behaviors

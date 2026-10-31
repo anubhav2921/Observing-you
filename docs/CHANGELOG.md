@@ -2,6 +2,28 @@
 
 This document maintains a chronological record of all architectural updates, bug fixes, features, and test outcomes.
 
+## [2.5.0] — 2026-10-31
+### Added
+- **Real-Time AI Study Focus Monitoring Dashboard Overhaul:**
+  - Redesigned and implemented the monitoring dashboard based on the visual reference:
+    - **Live Camera Feed HUD:** Real-time green target bounding box (`[Face Detected]`), landmarks overlay, live resolution (`640x480`), and FPS indicator.
+    - **5 Compact Independent Signal Pills:** Face (`Detected`/`Absent`), Eyes (`Open`/`Closed`), Pose (`Normal`/`Tilted`), Phone (`Not Detected`/`In Use`), and Activity (`Reading`/`Writing`/`Screen`).
+    - **Current Behaviour Card:** Prominent state label, subcategory description, SVG dynamic radial confidence gauge (0–100%), and stability badge (`Stable State` / `Transitioning`).
+    - **Real-Time AI Analysis Checklist:** 5 dynamic checklist items confirming verified observations (face visible, eyes focused, head orientation, hand position, phone absent/present).
+    - **Quad Real-Time Metric Cards:** Focus Level, Attention, Distraction, and Drowsiness with animated mini sparkline canvases.
+    - **Stock-Market-Style Continuous Focus Graph:** 60–120s rolling canvas graph with cubic bezier curve smoothing, vertical gradients, glowing boundary, live leading head dot, metric selector dropdown, and dynamic time-axis labels.
+    - **Live In-Memory Events Panel:** Real-time timeline recording up to 20 recent state transitions with timestamps, color badges, duration markers, and clear log action.
+    - **Top Control Bar & Sine Wave Visualizer:** Live session timer, camera/model/socket status badges, real-time FPS counter, and animated ambient sine waveform canvas.
+  - **Zero Persistent Storage Architecture:**
+    - Strictly non-database, non-user session model. All metrics, sparkline history, and event transitions remain strictly ephemeral in temporary browser memory and are wiped when monitoring stops.
+  - **Backend Pipeline & Event Telemetry:**
+    - Added derived telemetry fields in `ObservationData`: `face_box`, `focus_level`, `attention_level`, `distraction_level`, and `drowsiness_level`.
+  - **Build & Quality Assurance:**
+    - Verified Vite production build (`vite build` in 249ms) with 0 errors.
+    - Ran complete backend test suite: 94/94 tests passing (100% OK).
+
+---
+
 ## [2.4.0] — 2026-10-31
 ### Added
 - **Cinematic Zoom-In Intro Animation Sequence:**

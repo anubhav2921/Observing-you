@@ -619,8 +619,8 @@
 
 
   <!-- =====================================================================
-       EXISTING MONITORING DASHBOARD VIEW
-       (Completely preserved, untouched IDs and component hierarchy)
+       REAL-TIME AI STUDY FOCUS MONITORING DASHBOARD VIEW
+       (Inspired by media_1793440868171_291b101b.jpg)
        ===================================================================== -->
   <div id="dashboard-view" class="dashboard-view" style="display: none;">
     <!-- Sleek Top Return Bar -->
@@ -628,7 +628,7 @@
       <div style="display: flex; align-items: center; gap: 8px;">
         <span style="font-size: 1.1rem;">🎓</span>
         <strong style="color: #ffffff;">AI Study Focus Monitor</strong>
-        <span style="color: #64748b; font-size: 0.8rem;">| Active Workspace Session</span>
+        <span style="color: #64748b; font-size: 0.82rem;">| Live Monitoring Workspace</span>
       </div>
       <a href="#" class="dashboard-return-btn" id="return-to-landing-btn">
         <span>◂</span>
@@ -636,320 +636,358 @@
       </a>
     </div>
 
-    <!-- Original Monitoring Dashboard App Container (100% Intact) -->
-    <div class="app-container">
-      <!-- Top Navigation & Header -->
-      <header class="app-header">
-        <div class="header-brand">
-          <div class="brand-icon">🎓</div>
-          <div>
-            <h1 class="brand-title">AI Study Focus Monitor</h1>
-            <p class="brand-subtitle">Real-Time Multi-Modal Attention, Posture & Fatigue Analytics</p>
-          </div>
-        </div>
-
-        <div class="header-stats">
-          <div class="stat-pill" id="session-duration-pill">
-            <span class="stat-icon">⏱️</span>
-            <span class="stat-label">Session:</span>
-            <span class="stat-value" id="session-duration">00:00:00</span>
-          </div>
-
-          <div class="stat-pill" id="fps-pill">
-            <span class="stat-icon">⚡</span>
-            <span class="stat-label">Inference:</span>
-            <span class="stat-value" id="fps-value">0.0 FPS</span>
-          </div>
-
-          <button class="audio-toggle-btn" id="audio-toggle-btn" title="Toggle browser audio alerts">
-            <span id="audio-icon">🔊</span>
-            <span id="audio-text">Audio Alerts: ON</span>
-          </button>
-
-          <div class="connection-status-badge status-disconnected" id="connection-badge">
-            <span class="status-dot"></span>
-            <span id="connection-text">Disconnected</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- Global Control Bar -->
-      <section class="control-bar">
-        <div class="control-actions">
-          <button class="btn btn-primary" id="start-btn">
-            <span class="btn-icon">▶</span>
-            <span>Start Monitoring</span>
-          </button>
-
-          <button class="btn btn-danger" id="stop-btn" disabled>
-            <span class="btn-icon">■</span>
-            <span>Stop Monitoring</span>
-          </button>
-
-          <button class="btn btn-secondary" id="camera-perm-btn">
-            <span class="btn-icon">📷</span>
-            <span>Request Camera</span>
-          </button>
-
-          <button class="btn btn-secondary" id="calibrate-btn">
-            <span class="btn-icon">🎯</span>
-            <span>Calibrate</span>
-          </button>
-
-          <button class="btn btn-secondary" id="reset-btn">
-            <span class="btn-icon">🔄</span>
-            <span>Reset Session</span>
-          </button>
-        </div>
-
-        <div class="camera-indicator">
-          <span class="status-dot-sm" id="camera-status-dot"></span>
-          <span id="camera-status-text">Camera: Standby</span>
-        </div>
-      </section>
-
-      <!-- Main Dashboard Grid -->
-      <main class="dashboard-grid">
-        <!-- Left Column: Video Feed & Independent Behavioral Signals -->
-        <div class="feed-column">
-          <!-- Live Camera Card -->
-          <div class="panel-card video-card">
-            <div class="card-header">
-              <h2 class="card-title">Live Study Workspace Feed</h2>
-              <span class="card-badge" id="camera-info-bar">Browser WebRTC</span>
-            </div>
-
-            <div class="video-container">
-              <!-- Video Placeholder / Standby Screen -->
-              <div class="video-placeholder" id="video-placeholder">
-                <div class="placeholder-content">
-                  <div class="placeholder-icon">📷</div>
-                  <p class="placeholder-title">Camera Feed Inactive</p>
-                  <p class="placeholder-desc">Click "Start Monitoring" or "Request Camera" to begin real-time focus analysis.</p>
-                </div>
-              </div>
-
-              <!-- Camera Error / Recovery Banner -->
-              <div class="camera-error-banner" id="camera-error-banner" style="display: none;">
-                <span class="error-icon">⚠️</span>
-                <span id="camera-error-message">Camera feed interrupted. Reconnecting...</span>
-              </div>
-
-              <!-- HTML5 Live Video Element -->
-              <video id="webcam-video" autoplay playsinline muted></video>
-
-              <!-- Hidden Frame Capture Canvas (Transfers to WebSocket) -->
-              <canvas id="hidden-capture-canvas" style="display: none;"></canvas>
-
-              <!-- Optional HUD Overlay Canvas (Draws facial landmarks) -->
-              <canvas id="hud-overlay-canvas"></canvas>
-            </div>
-
-            <div class="video-privacy-note">
-              <span>🔒 <strong>Camera Privacy & Permissions:</strong> Video frames are processed strictly in real-time. By default, no video is stored or uploaded. If prompted by your browser, please select <strong>Allow</strong> for camera access.</span>
-            </div>
-          </div>
-
-          <!-- Independent Multi-Modal Signals Matrix -->
-          <div class="panel-card signals-card">
-            <div class="card-header">
-              <h2 class="card-title">Independent Behavioral Signals</h2>
-              <span class="card-badge">Multi-Modal</span>
-            </div>
-
-            <div class="signals-grid">
-              <div class="signal-item">
-                <span class="signal-label">Face Present:</span>
-                <span class="signal-value" id="obs-face-present-val">--</span>
-              </div>
-              <div class="signal-item">
-                <span class="signal-label">Face Occluded:</span>
-                <span class="signal-value" id="obs-face-occluded-val">--</span>
-              </div>
-              <div class="signal-item">
-                <span class="signal-label">Person Present:</span>
-                <span class="signal-value" id="obs-person-present-val">--</span>
-              </div>
-              <div class="signal-item">
-                <span class="signal-label">Head Direction:</span>
-                <span class="signal-value" id="obs-head-direction-val">--</span>
-              </div>
-              <div class="signal-item">
-                <span class="signal-label">Eye State (EAR):</span>
-                <span class="signal-value" id="obs-eye-state-val">--</span>
-              </div>
-              <div class="signal-item">
-                <span class="signal-label">Study Activity:</span>
-                <span class="signal-value" id="obs-study-activity-val">--</span>
-              </div>
-              <div class="signal-item">
-                <span class="signal-label">Inactivity Timer:</span>
-                <span class="signal-value" id="obs-inactivity-val">0.0s</span>
-              </div>
-              <div class="signal-item">
-                <span class="signal-label">Hand Near Face:</span>
-                <span class="signal-value" id="obs-hand-near-face-val">--</span>
-              </div>
-              <div class="signal-item">
-                <span class="signal-label">Camera Health:</span>
-                <span class="signal-value" id="obs-camera-health-val">OK</span>
-              </div>
-              <div class="signal-item">
-                <span class="signal-label">Phone Status:</span>
-                <span class="signal-value" id="obs-phone-status-val">--</span>
-              </div>
-              <div class="signal-item" style="grid-column: span 2;">
-                <span class="signal-label">Behavior Taxonomy:</span>
-                <span class="signal-value" id="obs-behavior-category-val">--</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column: State, Recommendations, Rationale & History -->
-        <div class="analytics-column">
-          <!-- Primary Authoritative State Card -->
-          <div class="panel-card state-card" id="state-card">
-            <div class="card-header">
-              <span class="state-card-pretitle">Primary Authoritative State</span>
-              <span class="state-duration-badge" id="state-duration-badge">0.0s</span>
-            </div>
-
-            <div class="state-main-display">
-              <h2 class="state-name" id="state-name">[~] MONITORING</h2>
-              <div class="confidence-container">
-                <span class="confidence-label">Confidence:</span>
-                <div class="confidence-bar-track">
-                  <div class="confidence-bar-fill" id="confidence-bar" style="width: 0%;"></div>
-                </div>
-                <span class="confidence-val" id="confidence-value">0%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Positive Study Coach & Guidance Panel -->
-          <div class="panel-card recommendation-card" id="recommendation-card">
-            <div class="card-header">
-              <h3 class="card-title">
-                <span class="rec-icon">💡</span>
-                <span>What should I do now?</span>
-              </h3>
-              <span class="badge badge-positive" id="recommendation-severity">GUIDANCE</span>
-            </div>
-            <div class="recommendation-body">
-              <h4 class="recommendation-title" id="recommendation-title">Getting Ready</h4>
-              <p class="recommendation-message" id="recommendation-message">Click Start Monitoring to begin tracking your study rhythm.</p>
-              <p class="recommendation-reason" id="recommendation-reason">Why: Awaiting active study session start.</p>
-            </div>
-          </div>
-
-          <!-- Explainable AI Decision Rationale -->
-          <div class="panel-card rationale-card">
-            <div class="card-header">
-              <h3 class="card-title">
-                <span class="rec-icon">🔍</span>
-                <span>Why did the AI make this decision?</span>
-              </h3>
-              <span class="card-badge">AI REASONING</span>
-            </div>
-            <div class="rationale-content">
-              <div class="rationale-row">
-                <span class="rationale-label">OBSERVATION:</span>
-                <span class="rationale-val" id="rationale-obs">Awaiting initial frame inference</span>
-              </div>
-              <div class="rationale-row">
-                <span class="rationale-label">ADDITIONAL EVIDENCE:</span>
-                <ul class="rationale-list" id="rationale-evidence-list">
-                  <li>Study materials = Standby</li>
-                  <li>Eyes = Standby</li>
-                  <li>Body posture = Standby</li>
-                </ul>
-              </div>
-              <div class="rationale-row" style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(255,255,255,0.1);">
-                <span class="rationale-label">DECISION:</span>
-                <span class="rationale-val" id="rationale-decision" style="color: var(--color-reading);">INITIALIZING</span>
-                <span class="rationale-label" style="margin-left: 14px;">AUDIO:</span>
-                <span class="rationale-val" id="rationale-audio">No alert triggered.</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Alert & Audio Status Card -->
-          <div class="panel-card alert-card" id="alert-card">
-            <div class="card-header">
-              <h3 class="card-title">Alert & Audio Controller</h3>
-              <span class="badge badge-standby" id="alert-priority-badge">STANDBY</span>
-            </div>
-            <div class="alert-display">
-              <div class="alert-icon-wrap" id="alert-icon">🔕</div>
-              <div class="alert-info">
-                <h4 class="alert-name" id="alert-name">No Active Alert</h4>
-                <p class="alert-reason" id="alert-reason">Normal studying flow. Audio alert muted.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Session State Transition History -->
-          <div class="panel-card history-card">
-            <div class="card-header">
-              <h3 class="card-title">Session Event History & State Transitions</h3>
-              <button class="btn-text" id="clear-history-btn">Clear Log</button>
-            </div>
-            <div class="history-timeline" id="history-timeline">
-              <div class="history-empty" id="history-empty">No state transitions recorded yet.</div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <!-- Camera Permission Request Modal -->
-      <div class="modal-backdrop" id="permission-modal" style="display: none;">
-        <div class="modal-dialog">
-          <div class="modal-header">
-            <h3>📷 Camera Permission Required</h3>
-            <button class="modal-close-btn" id="modal-close-btn">&times;</button>
-          </div>
-          <div class="modal-body">
-            <p>The AI Study Focus Monitor needs access to your camera to analyze posture, eye gaze, and attentiveness in real-time.</p>
-            <p><strong>Your Privacy:</strong> Video frames are processed strictly in volatile memory. No video or images are stored or transmitted to external servers.</p>
-            <p>Please click <strong>Allow</strong> in the browser prompt that appears at the top of your screen.</p>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" id="modal-dismiss-btn">Dismiss</button>
-            <button class="btn btn-primary" id="modal-retry-btn">Try Requesting Again</button>
-          </div>
+    <!-- Top Status Bar -->
+    <header class="dash-top-bar">
+      <div class="dash-brand">
+        <div class="dash-brand-icon">🧠</div>
+        <div>
+          <h1 class="dash-brand-title">AI Study <span>Focus Monitor</span></h1>
+          <p class="dash-brand-subtitle">Real-time AI Monitoring • Stay Focused • Study Smarter</p>
         </div>
       </div>
 
-      <!-- Calibration Modal Dialog -->
-      <div class="modal-backdrop" id="calibration-modal" style="display: none;">
-        <div class="modal-dialog">
-          <div class="modal-header">
-            <h3>🎯 Personal Workspace Calibration</h3>
-            <button class="modal-close-btn" id="calib-close-btn">&times;</button>
+      <div class="dash-status-pills">
+        <div class="status-capsule">
+          <span class="dot-indicator" id="top-camera-dot"></span>
+          <span>Camera</span>
+          <strong id="top-camera-status">Standby</strong>
+        </div>
+
+        <div class="status-capsule">
+          <span class="dot-indicator active"></span>
+          <span>AI Models</span>
+          <strong id="top-models-status">Running</strong>
+        </div>
+
+        <div class="status-capsule">
+          <span class="dot-indicator" id="top-ws-dot"></span>
+          <span>WebSocket</span>
+          <strong id="top-ws-status">Disconnected</strong>
+        </div>
+
+        <div class="status-capsule">
+          <span>FPS</span>
+          <strong id="top-fps-val">0.0</strong>
+        </div>
+      </div>
+
+      <div class="dash-top-right">
+        <div class="session-timer-pill">
+          <span>⏱️</span>
+          <span>Session Time:</span>
+          <strong id="top-session-time">00:00:00</strong>
+        </div>
+        <canvas id="top-audio-wave" class="top-waveform-canvas"></canvas>
+      </div>
+    </header>
+
+    <!-- Main 2-Column Grid Layout -->
+    <main class="dash-main-grid">
+      <!-- ================= LEFT COLUMN ================= -->
+      <section class="dash-left-column">
+        <!-- Live Camera Feed Card -->
+        <div class="dash-card camera-feed-card">
+          <div class="dash-card-header">
+            <h2 class="dash-card-title">
+              <span class="icon">📹</span>
+              <span>Live Camera Feed</span>
+            </h2>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="live-badge">
+                <span class="pulse-dot"></span>
+                <span>LIVE</span>
+              </span>
+              <span style="color: #38bdf8; font-size: 0.9rem;">📊</span>
+            </div>
           </div>
-          <div class="modal-body">
-            <p>Calibrate your workspace to adapt the AI to your personal camera height, sitting angle, and natural head tilt.</p>
-            <div class="calib-steps">
-              <div class="calib-step">
-                <strong>Step 1: Normal Sitting Posture</strong>
-                <p>Sit upright and look comfortably at your screen.</p>
+
+          <!-- Video Display Frame -->
+          <div class="dash-video-wrapper">
+            <!-- Overlays -->
+            <div class="video-hud-tags">
+              <span class="video-hud-tag" id="video-fps-tag">FPS: 0.0</span>
+              <span class="video-hud-tag" id="video-res-tag">640x480</span>
+            </div>
+
+            <!-- Standby Placeholder -->
+            <div class="dash-video-placeholder" id="video-placeholder">
+              <div class="dash-placeholder-icon">📷</div>
+              <p class="dash-placeholder-title">Webcam Standby</p>
+              <p class="dash-placeholder-desc">Click "Start Monitoring" on the landing page or grant camera permission to begin.</p>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="camera-error-banner" id="camera-error-banner" style="display: none;">
+              <span class="error-icon">⚠️</span>
+              <span id="camera-error-message">Camera feed interrupted.</span>
+            </div>
+
+            <!-- Native HTML5 Video Element -->
+            <video id="webcam-video" autoplay playsinline muted></video>
+
+            <!-- Hidden Capture Canvas (Buffers JPEG for WebSocket) -->
+            <canvas id="hidden-capture-canvas" style="display: none;"></canvas>
+
+            <!-- Live HUD Canvas Overlay (Bounding Box, Face Mesh, Status) -->
+            <canvas id="hud-overlay-canvas"></canvas>
+          </div>
+
+          <!-- Compact 5-Indicator Row Below Video -->
+          <div class="compact-signals-row">
+            <div class="compact-signal-pill" id="obs-face-pill">
+              <span class="compact-sig-icon">📖</span>
+              <span class="compact-sig-label">Face</span>
+              <strong class="compact-sig-val" id="obs-face-val">Unknown</strong>
+            </div>
+
+            <div class="compact-signal-pill" id="obs-eyes-pill">
+              <span class="compact-sig-icon">👁️</span>
+              <span class="compact-sig-label">Eyes</span>
+              <strong class="compact-sig-val" id="obs-eyes-val">Open</strong>
+            </div>
+
+            <div class="compact-signal-pill" id="obs-pose-pill">
+              <span class="compact-sig-icon">👤</span>
+              <span class="compact-sig-label">Pose</span>
+              <strong class="compact-sig-val" id="obs-pose-val">Normal</strong>
+            </div>
+
+            <div class="compact-signal-pill" id="obs-phone-pill">
+              <span class="compact-sig-icon">📱</span>
+              <span class="compact-sig-label">Phone</span>
+              <strong class="compact-sig-val" id="obs-phone-val">Not Detected</strong>
+            </div>
+
+            <div class="compact-signal-pill" id="obs-activity-pill">
+              <span class="compact-sig-icon">💻</span>
+              <span class="compact-sig-label">Activity</span>
+              <strong class="compact-sig-val" id="obs-activity-val">Reading</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monitoring Action Controls -->
+        <div class="dash-control-actions">
+          <button class="btn-stop-glow" id="stop-btn">
+            <span>■</span>
+            <span>Stop Monitoring</span>
+          </button>
+
+          <button class="btn-dash-pill" id="pause-btn">
+            <span id="pause-icon">⏸</span>
+            <span id="pause-text">Pause</span>
+          </button>
+
+          <button class="btn-dash-pill" id="audio-toggle-btn">
+            <span id="audio-icon">🔊</span>
+            <span>Audio Alerts</span>
+            <span class="badge-pill-on" id="audio-badge">ON</span>
+          </button>
+
+          <button class="btn-dash-pill" id="settings-btn">
+            <span>⚙</span>
+            <span>Settings</span>
+          </button>
+
+          <!-- Hidden Compatibility Trigger for Landing Page Buttons -->
+          <button id="start-btn" style="display: none;"></button>
+        </div>
+      </section>
+
+      <!-- ================= RIGHT COLUMN ================= -->
+      <section class="dash-right-column">
+        <!-- Top Split Row: Current Behaviour (55%) & AI Analysis (45%) -->
+        <div class="dash-top-split-row">
+          <!-- Current Behaviour Card -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h2 class="dash-card-title">
+                <span class="icon">📖</span>
+                <span>Current Behaviour</span>
+              </h2>
+            </div>
+
+            <div class="behaviour-display-box">
+              <div class="behaviour-main-info">
+                <div class="behaviour-icon-badge" id="behaviour-icon">📖</div>
+                <div>
+                  <h3 class="behaviour-title" id="behaviour-title">STUDYING</h3>
+                  <p class="behaviour-subtitle" id="behaviour-subtitle">Reading / Writing</p>
+                </div>
               </div>
-              <div class="calib-step">
-                <strong>Step 2: Downward Reading Angle</strong>
-                <p>Look down at your desk, notebook, or keyboard as you normally study.</p>
+
+              <!-- Radial Confidence Gauge -->
+              <div class="radial-meter-container">
+                <svg class="radial-meter-svg" viewBox="0 0 72 72">
+                  <circle class="radial-meter-bg" cx="36" cy="36" r="32"></circle>
+                  <circle class="radial-meter-fill" id="radial-confidence-fill" cx="36" cy="36" r="32"></circle>
+                </svg>
+                <div class="radial-meter-text">
+                  <span class="radial-pct" id="radial-confidence-text">92%</span>
+                  <span class="radial-label">Confidence</span>
+                </div>
               </div>
             </div>
-            <div class="calib-progress-box">
-              <div class="progress-bar-track">
-                <div class="progress-bar-fill" id="calib-progress-bar" style="width: 0%;"></div>
+
+            <div class="behaviour-footer-bar">
+              <div class="stable-state-badge" id="behaviour-stability-pill">
+                <span class="dot"></span>
+                <span id="stability-text">Stable State</span>
               </div>
-              <span id="calib-status-text">Click "Begin Calibration" when seated normally.</span>
             </div>
           </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" id="calib-cancel-btn">Cancel</button>
-            <button class="btn btn-primary" id="calib-start-btn">Begin Calibration</button>
+
+          <!-- AI Analysis (Real-time) Card -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h2 class="dash-card-title">
+                <span class="icon">🧠</span>
+                <span>AI Analysis (Real-time)</span>
+              </h2>
+            </div>
+
+            <ul class="ai-analysis-checklist">
+              <li class="ai-check-item" id="check-face">
+                <span class="chk-icon">✔</span>
+                <span>Face is clearly visible</span>
+              </li>
+              <li class="ai-check-item" id="check-eyes">
+                <span class="chk-icon">✔</span>
+                <span>Eyes are open and focused</span>
+              </li>
+              <li class="ai-check-item" id="check-head">
+                <span class="chk-icon">✔</span>
+                <span>Head orientation towards study area</span>
+              </li>
+              <li class="ai-check-item" id="check-hands">
+                <span class="chk-icon">✔</span>
+                <span>Hand position suggests reading or writing</span>
+              </li>
+              <li class="ai-check-item" id="check-phone">
+                <span class="chk-icon">✔</span>
+                <span>No mobile phone detected</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Middle Row: 4 Metric Cards with Live Sparklines -->
+        <div class="dash-metrics-quad">
+          <!-- 1. Focus Level -->
+          <div class="metric-quad-card">
+            <div class="metric-top-line">
+              <span class="metric-icon-small" style="color: #10b981;">📖</span>
+              <span class="metric-quad-title">Focus Level</span>
+            </div>
+            <div class="metric-quad-value" id="metric-focus-val">78%</div>
+            <canvas id="sparkline-focus" class="metric-sparkline-canvas" width="160" height="38"></canvas>
+          </div>
+
+          <!-- 2. Attention -->
+          <div class="metric-quad-card">
+            <div class="metric-top-line">
+              <span class="metric-icon-small" style="color: #38bdf8;">🎯</span>
+              <span class="metric-quad-title">Attention</span>
+            </div>
+            <div class="metric-quad-value" id="metric-attention-val">72%</div>
+            <canvas id="sparkline-attention" class="metric-sparkline-canvas" width="160" height="38"></canvas>
+          </div>
+
+          <!-- 3. Distraction -->
+          <div class="metric-quad-card">
+            <div class="metric-top-line">
+              <span class="metric-icon-small" style="color: #ef4444;">👁️</span>
+              <span class="metric-quad-title">Distraction</span>
+            </div>
+            <div class="metric-quad-value" id="metric-distraction-val">18%</div>
+            <canvas id="sparkline-distraction" class="metric-sparkline-canvas" width="160" height="38"></canvas>
+          </div>
+
+          <!-- 4. Drowsiness -->
+          <div class="metric-quad-card">
+            <div class="metric-top-line">
+              <span class="metric-icon-small" style="color: #f59e0b;">⚡</span>
+              <span class="metric-quad-title">Drowsiness</span>
+            </div>
+            <div class="metric-quad-value" id="metric-drowsiness-val">6%</div>
+            <canvas id="sparkline-drowsiness" class="metric-sparkline-canvas" width="160" height="38"></canvas>
+          </div>
+        </div>
+
+        <!-- Bottom Split Row: Stock Market Focus Graph & Live Events -->
+        <div class="dash-bottom-split-row">
+          <!-- Real-Time Focus Graph (Stock Market Style) -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h2 class="dash-card-title">
+                <span class="icon">📊</span>
+                <span>Real-time Focus Graph</span>
+              </h2>
+              <select id="graph-metric-select" class="graph-select-dropdown">
+                <option value="focus">Focus Level</option>
+                <option value="attention">Attention</option>
+                <option value="distraction">Distraction</option>
+                <option value="drowsiness">Drowsiness</option>
+              </select>
+            </div>
+
+            <div class="stock-chart-container">
+              <canvas id="realtime-stock-graph" class="stock-chart-canvas" width="580" height="220"></canvas>
+            </div>
+          </div>
+
+          <!-- Live Events Feed Panel -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h2 class="dash-card-title">
+                <span class="icon">⏱️</span>
+                <span>Live Events</span>
+              </h2>
+              <span style="color: #10b981; font-size: 0.75rem; font-weight: 700;">● CURRENT SESSION</span>
+            </div>
+
+            <div class="events-feed-list" id="live-events-feed">
+              <div class="event-feed-row">
+                <div class="event-feed-left">
+                  <span class="event-bullet"></span>
+                  <span class="event-timestamp">--:--:--</span>
+                  <span class="event-name">Awaiting monitoring session</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Settings Modal Dialog -->
+    <div class="dash-modal-backdrop" id="settings-modal" style="display: none;">
+      <div class="dash-modal-card">
+        <div class="dash-modal-header">
+          <h3 class="dash-modal-title">⚙ Workspace Settings</h3>
+          <button class="dash-modal-close" id="settings-close-btn">&times;</button>
+        </div>
+
+        <div class="dash-modal-body">
+          <div class="dash-form-group">
+            <label class="dash-form-label">Active Camera Device</label>
+            <select id="camera-select" class="dash-form-select">
+              <option value="">Default Webcam</option>
+            </select>
+          </div>
+
+          <div class="dash-form-group">
+            <label class="dash-form-label">Privacy Guarantee</label>
+            <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5; margin: 0;">
+              Zero persistent data storage. No database or cloud logs. Video frames are processed in temporary volatile memory only.
+            </p>
+          </div>
+
+          <div style="margin-top: 14px; display: flex; gap: 10px; justify-content: flex-end;">
+            <button class="btn-dash-pill" id="reset-session-modal-btn" style="color: #f87171;">
+              <span>🔄</span>
+              <span>Reset Session Memory</span>
+            </button>
           </div>
         </div>
       </div>
