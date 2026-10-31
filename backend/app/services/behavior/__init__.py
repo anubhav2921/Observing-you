@@ -4,6 +4,7 @@ backend/app/services/behavior — Behavioral types and multi-label enums.
 
 from backend.app.services.behavior.behavior_types import (
     BehaviorLabel,
+    ConfirmationStatus,
     EyeState,
     HandActivity,
     HeadDirection,

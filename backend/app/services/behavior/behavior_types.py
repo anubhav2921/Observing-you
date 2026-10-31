@@ -62,11 +62,23 @@ class HeadDirection(Enum):
     UNKNOWN         = auto()
 
 
-class EyeState(Enum):
-    EYES_OPEN   = auto()
-    EYES_CLOSED = auto()
-    BLINKING    = auto()
+class ConfirmationStatus(Enum):
+    """Behavior confirmation lifecycle states."""
+    CONFIRMED   = auto()
+    POSSIBLE    = auto()
     UNKNOWN     = auto()
+    RECOVERING  = auto()
+
+
+class EyeState(Enum):
+    EYES_OPEN          = auto()
+    BLINK              = auto()
+    EYES_CLOSED        = auto()
+    EYE_STATE_UNKNOWN  = auto()
+
+    # Backward compatibility aliases
+    BLINKING           = BLINK
+    UNKNOWN            = EYE_STATE_UNKNOWN
 
 
 class ShoulderPosture(Enum):
@@ -313,3 +325,4 @@ class UpperBodyDecision:
     diagnostic_reason: str = ""
     alert_eligible: bool = False
     alert_rejection_reason: Optional[str] = None
+    confirmation_status: ConfirmationStatus = ConfirmationStatus.CONFIRMED

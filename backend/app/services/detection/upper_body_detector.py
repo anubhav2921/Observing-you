@@ -139,8 +139,8 @@ class UpperBodyDetector:
                     base_options=mp_base.BaseOptions(model_asset_path=face_path),
                     output_face_blendshapes=True,
                     num_faces=1,
-                    min_face_detection_confidence=0.45,
-                    min_face_presence_confidence=0.45,
+                    min_face_detection_confidence=0.30,
+                    min_face_presence_confidence=0.30,
                     running_mode=mp_vision.RunningMode.IMAGE,
                 )
                 self._face_landmarker = mp_vision.FaceLandmarker.create_from_options(face_opts)
@@ -156,8 +156,8 @@ class UpperBodyDetector:
                 pose_opts = mp_vision.PoseLandmarkerOptions(
                     base_options=mp_base.BaseOptions(model_asset_path=pose_path),
                     num_poses=1,
-                    min_pose_detection_confidence=0.45,
-                    min_pose_presence_confidence=0.45,
+                    min_pose_detection_confidence=0.35,
+                    min_pose_presence_confidence=0.35,
                     running_mode=mp_vision.RunningMode.IMAGE,
                 )
                 self._pose_landmarker = mp_vision.PoseLandmarker.create_from_options(pose_opts)
@@ -173,8 +173,8 @@ class UpperBodyDetector:
                 hand_opts = mp_vision.HandLandmarkerOptions(
                     base_options=mp_base.BaseOptions(model_asset_path=hand_path),
                     num_hands=2,
-                    min_hand_detection_confidence=0.45,
-                    min_hand_presence_confidence=0.45,
+                    min_hand_detection_confidence=0.35,
+                    min_hand_presence_confidence=0.35,
                     running_mode=mp_vision.RunningMode.IMAGE,
                 )
                 self._hand_landmarker = mp_vision.HandLandmarker.create_from_options(hand_opts)
@@ -288,6 +288,27 @@ class UpperBodyDetector:
         if self._face_landmarker is not None and mp_img is not None and not low_visibility:
             try:
                 face_res = self._face_landmarker.detect(mp_img)
+
+                # Fallback: if full-frame detection missed, attempt detection on upper-torso/head crop from YOLO person box
+                if (not face_res.face_landmarks) and person_detected and person_box is not None:
+                    px1, py1, px2, py2 = person_box
+                    pw, ph = px2 - px1, py2 - py1
+                    if pw >= 40 and ph >= 40:
+                        hx1 = max(0, px1 - int(pw * 0.10))
+                        hy1 = max(0, py1 - int(ph * 0.05))
+                        hx2 = min(w, px2 + int(pw * 0.10))
+                        hy2 = min(h, int(py1 + ph * 0.65))
+                        crop_rgb = mp_rgb[hy1:hy2, hx1:hx2]
+                        if crop_rgb.shape[0] >= 50 and crop_rgb.shape[1] >= 50:
+                            crop_img = mp.Image(image_format=mp.ImageFormat.SRGB, data=np.ascontiguousarray(crop_rgb))
+                            crop_res = self._face_landmarker.detect(crop_img)
+                            if crop_res.face_landmarks:
+                                cw, ch = float(hx2 - hx1), float(hy2 - hy1)
+                                for p in crop_res.face_landmarks[0]:
+                                    p.x = (hx1 + p.x * cw) / float(w)
+                                    p.y = (hy1 + p.y * ch) / float(h)
+                                face_res = crop_res
+
                 if face_res.face_landmarks:
                     face_detected = True
                     face_conf = 0.92
@@ -626,26 +647,33 @@ class UpperBodyDetector:
         eye_closure_duration = 0.0
 
         if eye_state == EyeState.EYES_CLOSED:
+            self._last_detector_closed_time = now
             if self._eye_closed_tracker_start is None:
                 self._eye_closed_tracker_start = now
             eye_closure_duration = now - self._eye_closed_tracker_start
 
-            if eye_closure_duration <= getattr(config, "BRIEF_BLINK_MAX_SECS", 0.5):
+            if eye_closure_duration <= getattr(config, "BRIEF_BLINK_MAX_SECS", 0.45):
                 brief_eye_close = True
                 normal_blinking = True
                 sustained_eye_close = False
-            elif eye_closure_duration >= getattr(config, "DROWSINESS_SUSTAINED_SECS", 2.0):
+            elif eye_closure_duration >= getattr(config, "DROWSINESS_SUSTAINED_SECS", 1.8):
                 brief_eye_close = False
                 normal_blinking = False
                 sustained_eye_close = True
             else:
-                # In between 0.5s and 2.0s: closing in progress, not yet sustained
                 brief_eye_close = False
                 normal_blinking = False
                 sustained_eye_close = False
         else:
-            self._eye_closed_tracker_start = None
-            eye_closure_duration = 0.0
+            # Allow 0.25s noise gap tolerance before resetting tracker start
+            last_closed = getattr(self, "_last_detector_closed_time", 0.0)
+            if self._eye_closed_tracker_start is not None and (now - last_closed) > 0.25:
+                self._eye_closed_tracker_start = None
+                eye_closure_duration = 0.0
+            elif self._eye_closed_tracker_start is not None:
+                eye_closure_duration = now - self._eye_closed_tracker_start
+            else:
+                eye_closure_duration = 0.0
             brief_eye_close = False
             normal_blinking = False
             sustained_eye_close = False
@@ -752,7 +780,12 @@ class UpperBodyDetector:
             ),
             face_occluded=Observation(
                 name="face_occluded",
-                value=bool(pose_features.face_covered_by_hand or pose_features.face_covered_by_book_or_object or (not face_detected and (person_detected or shoulders_detected))),
+                value=bool(
+                    pose_features.face_covered_by_hand
+                    or pose_features.face_covered_by_book_or_object
+                    or hand_act == HandActivity.HAND_COVERING_FACE
+                    or (hand_to_face_iou > 0.35 and not face_detected)
+                ),
                 confidence=0.90 if pose_features.face_covered_by_hand else 0.70,
                 timestamp=now,
                 valid=True,

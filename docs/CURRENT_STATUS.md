@@ -1,8 +1,8 @@
 # Live Project Status (CURRENT_STATUS) — AI Study Focus Monitor
 
-*Last Updated:* 2026-10-31T14:45:00+05:30  
-*Project Version:* 2.5.0  
-*Current Development Phase:* Real-Time AI Study Focus Monitoring Dashboard Overhaul Complete
+*Last Updated:* 2026-10-31T17:15:00+05:30  
+*Project Version:* 2.6.1  
+*Current Development Phase:* Detection Accuracy Overhaul & Simplified Dashboard Complete
 
 ---
 

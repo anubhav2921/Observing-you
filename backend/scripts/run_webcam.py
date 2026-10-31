@@ -127,7 +127,12 @@ def main() -> None:
     print("  Press 'q' or 'ESC' in the camera window to stop.")
     print("=" * 60)
 
-    cap = cv2.VideoCapture(config.CAMERA_INDEX)
+    # Open camera with DirectShow on Windows for zero-latency DirectShow capture
+    backend_flag = cv2.CAP_DSHOW if sys.platform == "win32" else cv2.CAP_ANY
+    cap = cv2.VideoCapture(config.CAMERA_INDEX, backend_flag)
+    if not cap.isOpened() and backend_flag != cv2.CAP_ANY:
+        cap = cv2.VideoCapture(config.CAMERA_INDEX)
+
     if not cap.isOpened():
         print(f"[Error] Could not open camera at index {config.CAMERA_INDEX}.")
         print("Please verify camera connection and Windows privacy permissions.")
@@ -136,6 +141,11 @@ def main() -> None:
     # Set camera resolution and target FPS
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
+    # Allow camera sensor auto-exposure and white balance to stabilize
+    for _ in range(6):
+        cap.read()
+        time.sleep(0.03)
 
     monitor = FocusMonitor()
     audio = CentralAudioManager()

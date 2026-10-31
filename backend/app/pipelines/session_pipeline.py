@@ -261,6 +261,25 @@ class SessionPipeline:
         # WHY DID THE AI MAKE THIS DECISION? (Part 8)
         rationale = self._build_decision_rationale(state, decision, features, alert)
 
+        # Clean Human-Readable Activity Label (Phase 7)
+        activity_label_map = {
+            StudyState.STUDYING: "STUDYING",
+            StudyState.STUDYING_READING: "READING",
+            StudyState.STUDYING_WRITING: "WRITING",
+            StudyState.LOOKING_AWAY: "LOOKING AWAY",
+            StudyState.DISTRACTED: "PHONE INTERACTION",
+            StudyState.POSSIBLE_DROWSINESS: "DROWSINESS",
+            StudyState.INACTIVITY_WARNING: "IDLE",
+            StudyState.FACE_OCCLUDED: "FACE OCCLUDED",
+            StudyState.OCCLUSION_UNCERTAIN: "OCCLUSION UNCERTAIN",
+            StudyState.STUDENT_ABSENT: "STUDENT ABSENT",
+            StudyState.RECOVERING: "RESUMING STUDY",
+            StudyState.CAMERA_ERROR: "CAMERA ERROR",
+            StudyState.STUDY_ACTIVITY_UNCONFIRMED: "ACTIVITY UNCONFIRMED",
+        }
+        clean_activity_label = activity_label_map.get(state, state.name)
+        conf_status_str = decision.confirmation_status.name if (decision and hasattr(decision, "confirmation_status")) else "CONFIRMED"
+
         return StateUpdateEvent(
             session_id=self.session_id,
             timestamp=now,
@@ -276,6 +295,8 @@ class SessionPipeline:
             alert=alert,
             recommendation=rec,
             decision_rationale=rationale,
+            activity_label=clean_activity_label,
+            confirmation_status=conf_status_str,
         )
 
     def _build_decision_rationale(
@@ -471,6 +492,8 @@ class SessionPipeline:
             alert=AlertData(active=False, reason=error_msg),
             recommendation=rec,
             decision_rationale=rationale,
+            activity_label="CAMERA ERROR",
+            confirmation_status="UNKNOWN",
         )
 
     def apply_calibration(self, calibration_data: Dict[str, Any]) -> None:

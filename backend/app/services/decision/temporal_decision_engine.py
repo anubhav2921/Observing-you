@@ -14,6 +14,7 @@ import backend.app.core.config as config
 from backend.app.services.behavior.behavior_types import (
     BehaviorCategory,
     BehaviorLabel,
+    ConfirmationStatus,
     EyeState,
     HandActivity,
     HeadDirection,
@@ -67,6 +68,9 @@ class TemporalDecisionEngine:
         self._recovery_start: Optional[float] = None
 
         self._recovering_from_state: Optional[BehaviorLabel] = None
+        self._consecutive_open_frames: int = 0
+        self._consecutive_closed_frames: int = 0
+        self._last_valid_closed_time: float = 0.0
 
         # Rolling history for smoothing candidate states (0.5s window)
         self._history: deque[Tuple[float, BehaviorLabel]] = deque()
@@ -93,6 +97,9 @@ class TemporalDecisionEngine:
         self._camera_error_start = None
         self._recovery_start = None
         self._recovering_from_state = None
+        self._consecutive_open_frames = 0
+        self._consecutive_closed_frames = 0
+        self._last_valid_closed_time = 0.0
         self._history.clear()
         self.last_confidence = 1.0
 
@@ -205,6 +212,15 @@ class TemporalDecisionEngine:
             if (now - (self._phone_start or now)) >= getattr(config, "PHONE_ACTIVE_USAGE_SECS", 0.8):
                 phone_st = PhoneInteractionStatus.PHONE_CONFIRMED
 
+        if self.primary_state in (BehaviorLabel.ACTIVITY_UNCONFIRMED, BehaviorLabel.OFF_TASK_CANDIDATE):
+            conf_status = ConfirmationStatus.POSSIBLE
+        elif self.primary_state == BehaviorLabel.RECOVERING:
+            conf_status = ConfirmationStatus.RECOVERING
+        elif self.primary_state == BehaviorLabel.CAMERA_ERROR and not f.camera_valid:
+            conf_status = ConfirmationStatus.UNKNOWN
+        else:
+            conf_status = ConfirmationStatus.CONFIRMED
+
         return UpperBodyDecision(
             primary_state=self.primary_state,
             active_behaviors=self.active_behaviors,
@@ -222,6 +238,7 @@ class TemporalDecisionEngine:
             diagnostic_reason=diagnostic_reason,
             alert_eligible=alert_eligible,
             alert_rejection_reason=alert_rejection_reason,
+            confirmation_status=conf_status,
         )
 
     # ──────────────────────────────────────────────────────────────────
@@ -387,6 +404,7 @@ class TemporalDecisionEngine:
             # Hands covering face / deliberate concealment takes precedence over indeterminate head posture
             is_face_covered = (
                 f.pose_features.face_covered_by_hand
+                or f.pose_features.face_covered_by_book_or_object
                 or f.hand_to_face_iou > 0.30
                 or f.hand_activity == HandActivity.HAND_COVERING_FACE
             )
@@ -416,13 +434,10 @@ class TemporalDecisionEngine:
             else:
                 self._head_down_start = None
 
-            # General face absence/concealment
-            if self._occlusion_start is None:
-                self._occlusion_start = now
-            dur = now - self._occlusion_start
-            if dur >= config.FACE_OCCLUDED_SECS:
-                return BehaviorLabel.FACE_FULLY_OCCLUDED, f"Face concealed / hidden for {dur:.1f}s", 0.90
-            return BehaviorLabel.FACE_PARTIALLY_OCCLUDED, f"Face hidden/obscured ({dur:.1f}s / {config.FACE_OCCLUDED_SECS:.1f}s)", 0.70
+            # If no physical occlusion (no hands/objects covering face), do NOT label as occlusion!
+            # Reset occlusion timer and treat as unconfirmed without false alarms.
+            self._occlusion_start = None
+            return BehaviorLabel.ACTIVITY_UNCONFIRMED, "Face landmarks obscured / unconfirmed", 0.60
         else:
             self._occlusion_start = None
             self._head_down_start = None
@@ -430,32 +445,59 @@ class TemporalDecisionEngine:
         # 6. Drowsiness (sustained validated eye closure, repeated drooping, fatigue indicators)
         # Rule: missing/invalid landmarks, normal blinks, or downward reading must NOT trigger drowsiness
         landmarks_valid = f.face_detected and getattr(f, "landmark_validity", True)
-        is_normal_blink = getattr(f.pose_features, "normal_blinking", False) or getattr(f.pose_features, "brief_eye_closure", False)
 
-        is_eyes_closed = (
-            (f.eye_state == EyeState.EYES_CLOSED)
-            or (f.ear is not None and f.ear < config.EAR_CLOSE_THRESHOLD and f.eye_state != EyeState.UNKNOWN)
+        instantaneous_eye_closed = (
+            landmarks_valid
+            and (
+                f.eye_state in (EyeState.EYES_CLOSED, EyeState.BLINK, EyeState.BLINKING)
+                or (f.ear is not None and f.ear < config.EAR_CLOSE_THRESHOLD and f.eye_state not in (EyeState.UNKNOWN, EyeState.EYE_STATE_UNKNOWN))
+            )
         )
 
-        if not landmarks_valid or is_normal_blink:
-            self._eye_closed_start = None
-        elif is_eyes_closed:
+        if not landmarks_valid:
+            # Missing landmarks: never classify as closed eyes
+            f.eye_state = EyeState.EYE_STATE_UNKNOWN
+            self._consecutive_open_frames = 0
+            self._consecutive_closed_frames = 0
+            # Allow up to 0.35s tolerance before aborting an active closure timer
+            if self._eye_closed_start is not None and (now - self._last_valid_closed_time) > 0.35:
+                self._eye_closed_start = None
+        elif instantaneous_eye_closed:
+            self._consecutive_open_frames = 0
+            self._consecutive_closed_frames += 1
+            self._last_valid_closed_time = now
+
+            if self._eye_closed_start is None:
+                self._eye_closed_start = now
+            closure_dur = now - self._eye_closed_start
+
+            # Classify: normal blink vs confirmed closed
+            if closure_dur <= getattr(config, "BRIEF_BLINK_MAX_SECS", 0.45):
+                f.eye_state = EyeState.BLINK
+                # Normal blink must NOT trigger drowsiness alert
+            else:
+                f.eye_state = EyeState.EYES_CLOSED
+
             # Context compensation: looking down typing or reading foreshortens eyelids
             is_looking_down_studying = (
                 f.head_pitch is not None and f.head_pitch > 10.0
                 and (f.hands_near_lower_border or f.book_detected or f.laptop_detected)
             )
-            if is_looking_down_studying and not f.pose_features.sustained_eye_closure:
-                self._eye_closed_start = None
-            else:
-                if self._eye_closed_start is None:
-                    self._eye_closed_start = now
-                dur = now - self._eye_closed_start
-                if dur >= config.DROWSINESS_SUSTAINED_SECS or f.pose_features.sustained_eye_closure:
+
+            # Drowsiness confirmed when closure exceeds sustained threshold across multiple valid frames
+            sustained_threshold = getattr(config, "DROWSINESS_SUSTAINED_SECS", 1.8)
+            if (closure_dur >= sustained_threshold and self._consecutive_closed_frames >= 2) or f.pose_features.sustained_eye_closure:
+                if not (is_looking_down_studying and not f.pose_features.sustained_eye_closure):
                     ear_val = f.ear if f.ear is not None else 0.0
-                    return BehaviorLabel.POSSIBLE_DROWSINESS, f"Eyes closed for {dur:.1f}s (EAR: {ear_val:.2f})", 0.94
+                    return BehaviorLabel.POSSIBLE_DROWSINESS, f"Eyes closed for {closure_dur:.1f}s (EAR: {ear_val:.2f})", 0.95
         else:
-            self._eye_closed_start = None
+            # EYES_OPEN detected
+            f.eye_state = EyeState.EYES_OPEN
+            self._consecutive_open_frames += 1
+            self._consecutive_closed_frames = 0
+            # Require 2 consecutive open frames to confirm eye reopening and reset closure timer
+            if self._consecutive_open_frames >= 2 or (now - self._last_valid_closed_time) > 0.25:
+                self._eye_closed_start = None
 
         if landmarks_valid and f.pose_features.repeated_head_drooping and (f.ear is not None and f.ear < config.BORDERLINE_EAR_THRESHOLD):
             if self._droop_start is None:

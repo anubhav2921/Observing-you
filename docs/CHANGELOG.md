@@ -2,6 +2,36 @@
 
 This document maintains a chronological record of all architectural updates, bug fixes, features, and test outcomes.
 
+## [2.6.1] - 2026-10-31
+
+### Fixed
+- **Windows DirectShow OpenCV Capture**: Switched default Windows capture backend to cv2.CAP_DSHOW in 
+un_webcam.py with 6-frame sensor warmup, resolving MSMF buffer lockouts, device contention errors, and frame freezing.
+- **MediaPipe Landmark Dropout vs False Occlusion**: Corrected ace_occluded logic in upper_body_detector.py and 	emporal_decision_engine.py so that missing face mesh frames are not falsely classified as FACE_OCCLUDED unless physical occlusion (hands/objects covering face) is positively observed.
+- **YOLO Head-Region Crop Fallback**: Added automatic upper-body crop fallback in upper_body_detector.py for face mesh inference when full-frame detection confidence dips below threshold.
+- **Confidence Tuning**: Optimized FaceLandmarker detection/presence thresholds to 0.30 and pose/hands to 0.35 for reliable tracking under indoor lighting shadows.
+
+## [2.6.0] — 2026-10-31
+### Added & Improved
+- **Detection Accuracy Overhaul & Unified Pipeline (Phases 1–6):**
+  - **Single Authoritative Eye Closure Tracker:** Consolidated competing timers between `upper_body_detector.py` and `temporal_decision_engine.py`. Fixed the bug where the first 0.5s of eye closure was continuously reset by `normal_blinking=True`.
+  - **4 Explicit Eye States:** Introduced `EYES_OPEN`, `BLINK` (<=0.45s), `EYES_CLOSED` (>0.45s), and `EYE_STATE_UNKNOWN` (missing/occluded landmarks).
+  - **0.35s Noise Gap Tolerance:** Prevents a single dropped landmark frame from aborting an ongoing 1.7s closure while requiring 2 consecutive open frames for confirmed eye reopening.
+  - **Context-Aware Head Movement vs Distraction:** Downward head tilt while studying books, notes, or typing is strictly protected from false distraction classification.
+  - **Active Phone Usage Enforcement:** Distinguishes mere phone presence on the desk from active handling (`PHONE_IN_USE` / `PHONE_HELD`), requiring temporal confirmation.
+  - **Confirmation Status Lifecycle:** Added `ConfirmationStatus` (`CONFIRMED`, `POSSIBLE`, `UNKNOWN`, `RECOVERING`) to `UpperBodyDecision` and WebSocket `StateUpdateEvent`.
+  - **Centralized Diagnostic Mode:** Enhanced `StructuredLogger.log_diagnostic` logging Left EAR, Right EAR, Avg EAR, face visibility, head pose (yaw/pitch), hand detection, phone detection, confirmed activity, duration, and audio trigger rationale.
+
+- **Simplified Minimal Dashboard (Phase 7):**
+  - Stripped away unnecessary cognitive clutter: removed stock-market graphs, sparklines, quad percentage cards, radial gauge SVG meters, and checklist panels.
+  - Streamlined dashboard to ONLY 3 essential areas:
+    1. **Header:** Product brand, Camera connection status (`Active` / `Standby`), Session status (`Active` / `Idle`), and Audio Alerts toggle (`ON` / `OFF`).
+    2. **Camera:** Live webcam feed, clean emerald target bounding box overlay (`[Face Detected]`), resolution badge (`640x480`), and Start / Stop monitoring controls.
+    3. **Current Activity:** Prominent, high-contrast authoritative activity card (`STUDYING`, `READING`, `WRITING`, `LOOKING AWAY`, `PHONE INTERACTION`, `DROWSINESS`, `IDLE`, `FACE OCCLUDED`), with confirmation status tag and compact signal diagnostics.
+  - Verified Vite production build (`vite build` in 229ms, JS bundle reduced from 32kB to 18.8kB) and passed 94/94 regression tests.
+
+---
+
 ## [2.5.0] — 2026-10-31
 ### Added
 - **Real-Time AI Study Focus Monitoring Dashboard Overhaul:**

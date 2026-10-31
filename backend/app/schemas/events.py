@@ -78,4 +78,6 @@ class StateUpdateEvent(BaseModel):
     alert: AlertData
     recommendation: RecommendationData
     decision_rationale: Optional[DecisionRationale] = None
+    activity_label: str = "STUDYING"
+    confirmation_status: str = "CONFIRMED"
 
