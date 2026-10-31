@@ -1,12 +1,14 @@
 /**
- * frontend/js/audio_controller.js — Browser Audio Alert Manager
- * Handles alert preemption, autoplay unlock, user muting, and recovery stopping.
+ * frontend/src/utils/audio_controller.js — Browser Audio Alert Manager
+ * Handles alert preemption, autoplay unlock, user muting, volume control, and recovery stopping.
  */
 
 export class BrowserAudioController {
   constructor() {
     this.audioEnabled = true;
     this.isUnlocked = false;
+    this.volume = 1.0;
+    this.audioCtx = null;
 
     // Audio elements cache
     this.audioClips = {
@@ -15,45 +17,48 @@ export class BrowserAudioController {
       distraction: new Audio("/assets/audio/distraction_alert.mp3"),
     };
 
-    // Configure loop and preload
+    // Configure preloading and volume
     Object.values(this.audioClips).forEach((audio) => {
       audio.preload = "auto";
       audio.loop = false;
+      audio.volume = this.volume;
     });
 
     this.currentPlayingKey = null;
     this.currentPriority = 99;
 
-    // Attach unlock handlers to user interactions on window
+    // Attach unlock handlers to any user gesture on window
     const unlockHandler = () => {
       this.unlockAudio();
-      window.removeEventListener("click", unlockHandler);
-      window.removeEventListener("keydown", unlockHandler);
-      window.removeEventListener("touchstart", unlockHandler);
     };
-    window.addEventListener("click", unlockHandler);
-    window.addEventListener("keydown", unlockHandler);
-    window.addEventListener("touchstart", unlockHandler);
+    window.addEventListener("click", unlockHandler, { passive: true });
+    window.addEventListener("keydown", unlockHandler, { passive: true });
+    window.addEventListener("touchstart", unlockHandler, { passive: true });
   }
 
   /**
-   * Unlock browser audio playback on user gesture (click).
+   * Unlock browser audio playback on user gesture (click or keypress).
    */
   unlockAudio() {
-    if (this.isUnlocked) return;
+    if (!this.audioCtx) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          this.audioCtx = new AudioCtx();
+        }
+      } catch (e) {
+        console.warn("[AudioController] Web Audio API init error:", e);
+      }
+    }
 
-    // Play and unlock each audio element
+    if (this.audioCtx && this.audioCtx.state === "suspended") {
+      this.audioCtx.resume().catch(() => {});
+    }
+
+    // Preload audio elements
     Object.values(this.audioClips).forEach((audio) => {
       try {
-        const promise = audio.play();
-        if (promise !== undefined) {
-          promise.then(() => {
-            audio.pause();
-            audio.currentTime = 0;
-          }).catch((e) => {
-            // Browser blocked until gesture
-          });
-        }
+        audio.load();
       } catch (err) {
         // Ignored
       }
@@ -61,6 +66,16 @@ export class BrowserAudioController {
 
     this.isUnlocked = true;
     console.log("[AudioController] Browser audio unlocked successfully.");
+  }
+
+  /**
+   * Set playback volume (0.0 to 1.0).
+   */
+  setVolume(vol) {
+    this.volume = Math.max(0, Math.min(1, vol));
+    Object.values(this.audioClips).forEach((audio) => {
+      audio.volume = this.volume;
+    });
   }
 
   /**
@@ -92,6 +107,21 @@ export class BrowserAudioController {
   }
 
   /**
+   * Alias for stopAll() for compatibility.
+   */
+  stop() {
+    this.stopAll();
+  }
+
+  /**
+   * Primary entrypoint called by App.js on WebSocket state updates.
+   * @param {Object} alertData - { active, name, priority, audio_file, reason }
+   */
+  evaluateAlert(alertData) {
+    this.handleAlertEvent(alertData);
+  }
+
+  /**
    * Handle incoming alert event from backend.
    * @param {Object} alertData - { active, name, priority, audio_file, reason }
    */
@@ -113,6 +143,11 @@ export class BrowserAudioController {
       return;
     }
 
+    // Resume AudioContext if suspended
+    if (this.audioCtx && this.audioCtx.state === "suspended") {
+      this.audioCtx.resume().catch(() => {});
+    }
+
     // Determine target clip key
     let targetKey = "distraction";
     const name = (alertData.name || "").toUpperCase();
@@ -127,8 +162,8 @@ export class BrowserAudioController {
     // Check if clip is already actively playing
     if (this.currentPlayingKey === targetKey) {
       const activeAudio = this.audioClips[targetKey];
-      if (!activeAudio.paused && !activeAudio.ended) {
-        return; // Already playing this alert
+      if (activeAudio && !activeAudio.paused && !activeAudio.ended) {
+        return; // Already actively playing this alert
       }
     }
 
@@ -141,18 +176,22 @@ export class BrowserAudioController {
     // Play target audio
     const audio = this.audioClips[targetKey];
     if (audio) {
+      audio.volume = this.volume;
       audio.currentTime = 0;
       const playPromise = audio.play();
       if (playPromise !== undefined) {
-        playPromise.then(() => {
-          this.currentPlayingKey = targetKey;
-          this.currentPriority = priority;
-          console.log(`[AudioController] Playing alert audio for: ${targetKey}`);
-        }).catch((err) => {
-          console.warn("[AudioController] Autoplay prevented by browser:", err);
-          // If browser blocked it, try unlocking again
-          this.isUnlocked = false;
-        });
+        playPromise
+          .then(() => {
+            this.currentPlayingKey = targetKey;
+            this.currentPriority = priority;
+            console.log(`[AudioController] Playing alert audio for: ${targetKey}`);
+          })
+          .catch((err) => {
+            console.warn("[AudioController] Autoplay prevented by browser:", err);
+            this.isUnlocked = false;
+            // Play synthetic WebAudio fallback tone if element was blocked
+            this._playFallbackTone(targetKey);
+          });
       }
 
       audio.onended = () => {
@@ -163,5 +202,35 @@ export class BrowserAudioController {
       };
     }
   }
-}
 
+  /**
+   * Synthetic Web Audio fallback tone in case media element playback is blocked.
+   */
+  _playFallbackTone(targetKey) {
+    try {
+      if (!this.audioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) this.audioCtx = new AudioCtx();
+      }
+      if (!this.audioCtx) return;
+
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+
+      const freq = targetKey === "drowsiness" ? 440 : (targetKey === "occlusion" ? 587 : 784);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+
+      gain.gain.setValueAtTime(0.3 * this.volume, this.audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.4);
+
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
+
+      osc.start();
+      osc.stop(this.audioCtx.currentTime + 0.4);
+    } catch (e) {
+      // Ignore
+    }
+  }
+}

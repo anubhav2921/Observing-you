@@ -378,9 +378,10 @@ class SessionPipeline:
             self.active_alert_priority = 99
             return AlertData(active=False, reason="Safe diagnostic mode active: audio alert suppressed.")
 
-        if state in (StudyState.STUDYING, StudyState.STUDYING_READING, StudyState.STUDYING_WRITING, StudyState.RECOVERING):
+        if state not in WEB_ALERT_CONFIG:
             self.active_alert_name = None
             self.active_alert_priority = 99
+            self.last_alert_state = None
             return AlertData(active=False, reason="Clean study activity or recovery in progress.")
 
         if state in WEB_ALERT_CONFIG:
@@ -401,9 +402,11 @@ class SessionPipeline:
             cooldown_expired = (now - self.last_alert_time) >= cooldown
             is_same_incident = (self.last_alert_state == state)
 
-            # Keep alert.active = True as long as the student remains in this unrecovered alert state
-            # Prevent re-triggering new sound on audio manager if already playing
-            if self.last_alert_time == 0.0 or is_higher_priority:
+            # Trigger fresh alert if:
+            # 1. No active alert currently tracked (fresh transition from studying)
+            # 2. Or higher priority alert preemption (e.g. absent/drowsy preempts distraction)
+            # 3. Or cooldown expired for a new incident
+            if self.active_alert_name is None or is_higher_priority or (cooldown_expired and not is_same_incident):
                 self.active_alert_name = state.name
                 self.active_alert_priority = priority
                 self.last_alert_time = now
@@ -415,8 +418,10 @@ class SessionPipeline:
                     audio_file=audio_url,
                     reason=f"Alert triggered: {state.name} (Priority {priority})",
                 )
-            elif is_same_incident or cooldown_expired:
-                # Active alert condition continues! Maintain alert.active=True so frontend audio is NOT cancelled.
+            elif is_same_incident:
+                # Active alert condition continues! Maintain alert.active=True so audio is not prematurely cancelled.
+                if cooldown_expired:
+                    self.last_alert_time = now
                 return AlertData(
                     active=True,
                     name=state.name,

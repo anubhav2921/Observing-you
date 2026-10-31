@@ -163,6 +163,10 @@ export class StudyMonitorApp {
       if (this.settingsModal) this.settingsModal.style.display = "none";
     });
 
+    this.audioVolSlider?.addEventListener("input", (e) => {
+      this.audioCtrl.setVolume(parseFloat(e.target.value) / 100);
+    });
+
     this.graphMetricSelect?.addEventListener("change", (e) => {
       this.activeMetric = e.target.value;
     });
@@ -198,6 +202,9 @@ export class StudyMonitorApp {
   // =========================================================================
   async handleStartMonitoring() {
     if (this.isMonitoring) return;
+
+    // Immediately unlock browser audio on user gesture
+    this.audioCtrl.unlockAudio();
 
     if (this.errorBannerEl) this.errorBannerEl.style.display = "none";
     this.setCameraStatus("Starting...", "warning");
