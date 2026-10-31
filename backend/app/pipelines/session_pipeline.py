@@ -212,6 +212,8 @@ class SessionPipeline:
                 atten_lvl = round(max(0.05, min(1.0, (1.0 - yaw_pen - pitch_pen) * ear_fac)), 2)
 
             f_box = list(features.face_box) if (features and features.face_box) else None
+            p_box = list(features.person_box) if (features and getattr(features, "person_box", None)) else None
+            ph_box = list(features.phone_box) if (features and getattr(features, "phone_box", None)) else None
 
             obs_data = ObservationData(
                 face_present=bool(obs.face_present.value) if hasattr(obs, "face_present") and hasattr(obs.face_present, "value") else False,
@@ -235,6 +237,8 @@ class SessionPipeline:
                 behavior_category=decision.behavior_category.name if decision and hasattr(decision, "behavior_category") else "PRODUCTIVE_STUDYING",
                 laptop_present=getattr(features, "laptop_detected", False) if features else False,
                 face_box=f_box,
+                person_box=p_box,
+                phone_box=ph_box,
                 focus_level=focus_lvl,
                 attention_level=atten_lvl,
                 distraction_level=distract_lvl,

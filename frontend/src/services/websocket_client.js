@@ -21,8 +21,17 @@ export class MonitorWebSocketClient {
 
     // Callbacks
     this.onEvent = () => {};
+    this.onMessage = () => {};
     this.onStatusChange = () => {};
     this.onError = () => {};
+  }
+
+  /**
+   * Check if client can transmit the next frame (connected and not waiting for ACK).
+   * @returns {boolean}
+   */
+  canSendFrame() {
+    return this.isConnected && this.ws && this.ws.readyState === WebSocket.OPEN && !this.isAwaitingAck;
   }
 
   /**
@@ -50,13 +59,16 @@ export class MonitorWebSocketClient {
         this.isAwaitingAck = false;
 
         try {
+          let data = null;
           if (typeof event.data === "string") {
-            const data = JSON.parse(event.data);
-            this.onEvent(data);
+            data = JSON.parse(event.data);
           } else if (event.data instanceof Blob) {
             const text = await event.data.text();
-            const data = JSON.parse(text);
-            this.onEvent(data);
+            data = JSON.parse(text);
+          }
+          if (data) {
+            if (typeof this.onEvent === "function") this.onEvent(data);
+            if (typeof this.onMessage === "function") this.onMessage(data);
           }
         } catch (e) {
           console.warn("[WebSocket] Failed to parse message:", e);

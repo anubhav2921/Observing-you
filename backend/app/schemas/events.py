@@ -48,6 +48,8 @@ class ObservationData(BaseModel):
     behavior_category: str = "PRODUCTIVE_STUDYING"
     laptop_present: bool = False
     face_box: Optional[List[int]] = None
+    person_box: Optional[List[int]] = None
+    phone_box: Optional[List[int]] = None
     focus_level: float = 0.85
     attention_level: float = 0.80
     distraction_level: float = 0.10

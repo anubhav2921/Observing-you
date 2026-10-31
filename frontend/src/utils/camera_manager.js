@@ -128,5 +128,12 @@ export class CameraManager {
       this.captureCanvas.toBlob((blob) => resolve(blob), "image/jpeg", quality);
     });
   }
+
+  /**
+   * Alias for captureFrameBlob for compatibility.
+   */
+  captureJpegBlob(quality = 0.7) {
+    return this.captureFrameBlob(quality);
+  }
 }
 

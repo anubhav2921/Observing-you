@@ -84,6 +84,10 @@ export class StudyMonitorApp {
       }
     };
 
+    this.wsClient.onEvent = (data) => {
+      this.handleWebSocketMessage(data);
+    };
+
     this.wsClient.onMessage = (data) => {
       this.handleWebSocketMessage(data);
     };
@@ -200,12 +204,21 @@ export class StudyMonitorApp {
     this.frameIntervalTimer = setInterval(async () => {
       if (!this.isMonitoring) return;
 
-      // Flow control: wait for server ACK before transmitting next frame
-      if (!this.wsClient.canSendFrame()) return;
+      try {
+        // Flow control: wait for server ACK before transmitting next frame
+        if (this.wsClient && typeof this.wsClient.canSendFrame === "function") {
+          if (!this.wsClient.canSendFrame()) return;
+        }
 
-      const frameBlob = await this.camera.captureJpegBlob(0.70);
-      if (frameBlob) {
-        this.wsClient.sendFrame(frameBlob);
+        const captureFn = this.camera.captureJpegBlob || this.camera.captureFrameBlob;
+        if (!captureFn) return;
+
+        const frameBlob = await captureFn.call(this.camera, 0.70);
+        if (frameBlob && this.wsClient && this.isMonitoring) {
+          this.wsClient.sendFrame(frameBlob);
+        }
+      } catch (err) {
+        console.warn("[Monitor] Streaming loop capture error:", err);
       }
     }, this.frameIntervalMs);
   }
@@ -303,7 +316,30 @@ export class StudyMonitorApp {
 
     ctx.clearRect(0, 0, w, h);
 
-    // Draw Face Bounding Box if detected
+    // 1. Draw Person Bounding Box if detected and face not yet isolated
+    if (obs.person_box && Array.isArray(obs.person_box) && obs.person_box.length === 4) {
+      const [px1, py1, px2, py2] = obs.person_box;
+      const pbw = px2 - px1;
+      const pbh = py2 - py1;
+      if (pbw > 30 && pbh > 30) {
+        ctx.save();
+        ctx.strokeStyle = obs.face_box ? "rgba(59, 130, 246, 0.45)" : "#3b82f6"; // Blue/Cyan
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.strokeRect(px1, py1, pbw, pbh);
+        ctx.setLineDash([]);
+        if (!obs.face_box) {
+          ctx.fillStyle = "rgba(59, 130, 246, 0.85)";
+          ctx.fillRect(px1, Math.max(0, py1 - 22), 120, 20);
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 11px -apple-system, sans-serif";
+          ctx.fillText("[Person Detected]", px1 + 6, Math.max(14, py1 - 7));
+        }
+        ctx.restore();
+      }
+    }
+
+    // 2. Draw Face Bounding Box if detected
     if (obs.face_box && Array.isArray(obs.face_box) && obs.face_box.length === 4) {
       const [x1, y1, x2, y2] = obs.face_box;
       const bw = x2 - x1;
@@ -340,13 +376,32 @@ export class StudyMonitorApp {
 
       // Badge tag above target box
       ctx.fillStyle = "rgba(16, 185, 129, 0.9)";
-      ctx.fillRect(x1, y1 - 24, Math.max(120, corner * 4), 22);
+      ctx.fillRect(x1, Math.max(0, y1 - 24), Math.max(120, corner * 4), 22);
 
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 11px -apple-system, sans-serif";
-      ctx.fillText("[Face Detected]", x1 + 8, y1 - 8);
+      ctx.fillText("[Face Detected]", x1 + 8, Math.max(15, y1 - 8));
 
       ctx.restore();
+    }
+
+    // 3. Draw Mobile Phone Bounding Box if detected
+    if (obs.phone_present && obs.phone_box && Array.isArray(obs.phone_box) && obs.phone_box.length === 4) {
+      const [phx1, phy1, phx2, phy2] = obs.phone_box;
+      const phw = phx2 - phx1;
+      const phh = phy2 - phy1;
+      if (phw > 10 && phh > 10) {
+        ctx.save();
+        ctx.strokeStyle = "#ef4444"; // Red / Amber alert
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(phx1, phy1, phw, phh);
+        ctx.fillStyle = "rgba(239, 68, 68, 0.9)";
+        ctx.fillRect(phx1, Math.max(0, phy1 - 22), 115, 20);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 11px -apple-system, sans-serif";
+        ctx.fillText("[Phone Alert]", phx1 + 6, Math.max(14, phy1 - 7));
+        ctx.restore();
+      }
     }
   }
 
