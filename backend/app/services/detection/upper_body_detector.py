@@ -462,6 +462,7 @@ class UpperBodyDetector:
         hand_to_face_iou = 0.0
         hand_near_chin = False
         hand_near_eyes = False
+        hand_boxes: List[Tuple[int, int, int, int]] = []
 
         if self._hand_landmarker is not None and mp_img is not None and not low_visibility:
             try:
@@ -475,6 +476,7 @@ class UpperBodyDetector:
                         hx1, hy1 = int(min(h_xs)), int(min(h_ys))
                         hx2, hy2 = int(max(h_xs)), int(max(h_ys))
                         h_box = (hx1, hy1, hx2, hy2)
+                        hand_boxes.append(h_box)
 
                         # Check lower border proximity (typing/desk work near bottom 15% of frame)
                         if max(h_ys) > 0.82 * h:
@@ -672,7 +674,7 @@ class UpperBodyDetector:
             phone_interaction = PhoneInteractionStatus.PHONE_VISIBLE
             # Check overlap with hands (phone held/handled)
             for h_box in hand_boxes:
-                if self._compute_box_iou(phone_box, h_box) > 0.08:
+                if _compute_box_iou(phone_box, h_box) > 0.08:
                     hand_holding = True
                     break
 
