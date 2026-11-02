@@ -6,8 +6,31 @@
 export class MonitorWebSocketClient {
   constructor(url = null) {
     if (!url) {
-      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      this.url = `${protocol}//${window.location.host}/ws/monitor`;
+      // 1. Check Vite Environment Variable (e.g. set in Vercel project settings)
+      const envWs = (typeof import.meta !== "undefined" && import.meta.env) ? import.meta.env.VITE_WS_URL : null;
+      const envBackend = (typeof import.meta !== "undefined" && import.meta.env) ? import.meta.env.VITE_BACKEND_URL : null;
+
+      // 2. Check URL Query Parameter (e.g. ?backend=your-app.onrender.com)
+      let queryBackend = null;
+      try {
+        const params = new URLSearchParams(window.location.search);
+        queryBackend = params.get("backend");
+      } catch (e) {
+        // ignore
+      }
+
+      if (queryBackend) {
+        const cleanHost = queryBackend.replace(/^https?:\/\//, "").replace(/^wss?:\/\//, "").replace(/\/$/, "");
+        this.url = `wss://${cleanHost}/ws/monitor`;
+      } else if (envWs) {
+        this.url = envWs;
+      } else if (envBackend) {
+        const cleanHost = envBackend.replace(/^https?:\/\//, "").replace(/^wss?:\/\//, "").replace(/\/$/, "");
+        this.url = `wss://${cleanHost}/ws/monitor`;
+      } else {
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        this.url = `${protocol}//${window.location.host}/ws/monitor`;
+      }
     } else {
       this.url = url;
     }
