@@ -10,9 +10,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.app.api.routes import api_router
@@ -42,6 +42,15 @@ def create_app() -> FastAPI:
         description="Real-time multi-modal computer vision monitor for study focus, posture, and fatigue analytics.",
         lifespan=lifespan,
     )
+
+    # Enforce HTTPS on cloud proxies (e.g. Render) to guarantee webcam API (getUserMedia) access
+    @app.middleware("http")
+    async def redirect_http_to_https(request: Request, call_next):
+        proto = request.headers.get("x-forwarded-proto", "").lower()
+        if proto == "http":
+            url = request.url.replace(scheme="https")
+            return RedirectResponse(url=str(url), status_code=301)
+        return await call_next(request)
 
     # Cross-Origin Resource Sharing
     app.add_middleware(
